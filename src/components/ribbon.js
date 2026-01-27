@@ -558,18 +558,24 @@ function OnAction(control) {
                             
                             // 更新保存的配置
                             try {
-                                // 准备保存的配置
-                                const saveConfigs = [];
+                                // 先加载所有已有的配置
+                                const allConfigs = loadDynamicTimeConfig();
+                                // 准备当前工作簿的配置
+                                const currentConfigs = [];
                                 for (const clock of window.dynamicTimeClocks) {
-                                    saveConfigs.push({
+                                    currentConfigs.push({
                                         workbookName: clock.workbook.Name,
                                         workbookFullName: clock.workbook.FullName,
                                         sheetName: clock.sheetName,
                                         address: clock.address
                                     });
                                 }
+                                // 合并配置：保留其他工作簿的配置，只更新当前工作簿的配置
+                                const mergedConfigs = allConfigs.filter(config => 
+                                    config.workbookFullName !== currentWorkbook.FullName
+                                ).concat(currentConfigs);
                                 // 保存到localStorage
-                                saveDynamicTimeConfig(saveConfigs);
+                                saveDynamicTimeConfig(mergedConfigs);
                             } catch (e) {
                                 console.error('保存配置失败:', e);
                             }
@@ -635,18 +641,24 @@ function OnAction(control) {
                             
                             // 保存配置到localStorage
                             try {
-                                // 准备保存的配置
-                                const saveConfigs = [];
+                                // 先加载所有已有的配置
+                                const allConfigs = loadDynamicTimeConfig();
+                                // 准备当前工作簿的配置
+                                const currentConfigs = [];
                                 for (const clock of window.dynamicTimeClocks) {
-                                    saveConfigs.push({
+                                    currentConfigs.push({
                                         workbookName: clock.workbook.Name,
                                         workbookFullName: clock.workbook.FullName,
                                         sheetName: clock.sheetName,
                                         address: clock.address
                                     });
                                 }
+                                // 合并配置：保留其他工作簿的配置，只更新当前工作簿的配置
+                                const mergedConfigs = allConfigs.filter(config => 
+                                    config.workbookFullName !== workbookFullName
+                                ).concat(currentConfigs);
                                 // 保存到localStorage
-                                saveDynamicTimeConfig(saveConfigs);
+                                saveDynamicTimeConfig(mergedConfigs);
                             } catch (e) {
                                 console.error('保存配置失败:', e);
                             }

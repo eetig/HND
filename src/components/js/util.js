@@ -5,18 +5,17 @@ var WPS_Enum = {
 }
 
 function GetUrlPath() {
-    // 在本地网页的情况下获取路径
-    if (window.location.protocol === 'file:') {
-      const path = window.location.href;
-      // 删除文件名以获取根路径
-      return path.substring(0, path.lastIndexOf('/'));
-    }
+  // 获取完整URL
+  const fullUrl = window.location.href;
   
-    // 在非本地网页的情况下获取根路径
-    const { protocol, hostname, port } = window.location;
-    const portPart = port ? `:${port}` : '';
-    return `${protocol}//${hostname}${portPart}`;
-  }
+  // 获取URL的路径部分（不包含协议、主机名和端口）
+  const pathname = window.location.pathname;
+  
+  // 获取应用的根路径（包含协议、主机名、端口和应用路径）
+  const rootPath = fullUrl.substring(0, fullUrl.indexOf(pathname) + pathname.lastIndexOf('/') + 1);
+  
+  return rootPath;
+}
 
   function GetRouterHash() {
     if (window.location.protocol === 'file:') {

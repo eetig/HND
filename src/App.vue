@@ -5,14 +5,15 @@
 <style scoped></style>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import ribbon from './components/ribbon.js'
+
+// 立即注册ribbon对象到window对象，确保WPS加载插件时就能访问到
+window.ribbon = ribbon
+
 export default {
   setup() {
-    const message = ref('你好，wps加载项')
-    onMounted(() => {
-      window.ribbon = ribbon
-    })
+    const message = ref('你好，HND插件')
 
     return {
       message

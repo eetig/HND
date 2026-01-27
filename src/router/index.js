@@ -15,9 +15,19 @@ const router = createRouter({
       component: () => import('../components/Dialog.vue')
     },
     {
+      path: '/mydialog',
+      name: '对话框',
+      component: () => import('../components/MyDialog.vue')
+    },
+    {
       path: '/taskpane',
       name: '任务窗格',
       component: () => import('../components/TaskPane.vue')
+    },
+    {
+      path: '/materialquery',
+      name: '物料查询',
+      component: () => import('../components/MaterialQueryTaskPane.vue')
     }
   ]
 })

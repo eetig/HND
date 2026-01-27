@@ -48,6 +48,13 @@ function onbuttonclick(idStr, param)
         case "openWeb": {
             break
         }
+        case "openMaterialQuery": {
+            // 打开物料查询页面
+            if (window.location) {
+                window.location.href = window.location.origin + window.location.pathname + "#/materialquery";
+            }
+            break
+        }
     }
 }
 

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>物料查询</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    .global {
+      font-size: 14px;
+      padding: 15px;
+      min-height: 400px;
+      background-color: #ffffff;
+    }
+    
+    .title {
+      color: #333333;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    
+    .divider {
+      margin: 10px 0;
+      border: none;
+      border-top: 1px solid #e0e0e0;
+    }
+    
+    .input-section {
+      margin-bottom: 12px;
+      padding: 8px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .input-group {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .input-label {
+      margin-right: 10px;
+      display: inline-block;
+      width: 80px;
+      font-weight: 500;
+      color: #333333;
+      font-size: 13px;
+    }
+    
+    .input-field {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 13px;
+      transition: border-color 0.2s ease;
+    }
+    
+    .input-field:focus {
+      outline: none;
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+    
+    .auto-query-hint {
+      margin: 5px 0 15px 0;
+      color: #666666;
+      font-size: 11px;
+      font-style: italic;
+    }
+    
+    .result-section {
+      margin: 15px -15px -15px -15px;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+    
+    .result-container {
+      width: 100%;
+    }
+    
+    .result-header {
+      font-weight: 500;
+      color: #333333;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    
+    .result-table-container {
+      margin: 8px -15px -15px -15px;
+      padding: 0 15px;
+      overflow-x: auto;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background-color: #ffffff;
+    }
+    
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    
+    .result-table th, .result-table td {
+      border: 1px solid #e0e0e0;
+      padding: 6px 8px;
+      text-align: left;
+    }
+    
+    .result-table th {
+      background-color: #f5f5f5;
+      font-weight: 500;
+      color: #333333;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    
+    .result-table th:first-child {
+      width: 40px;
+      text-align: center;
+    }
+    
+    .result-table th:nth-child(2) {
+      width: 120px;
+    }
+    
+    .result-table th:nth-child(3) {
+      flex: 1;
+    }
+    
+    .result-table td:first-child {
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .result-row:hover {
+      background-color: #f0f8ff;
+    }
+    
+    .highlight {
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 0 2px;
+      border-radius: 2px;
+      font-weight: 500;
+    }
+    
+    .error-message {
+      color: #ff4d4f;
+      padding: 10px;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .info-message {
+      color: #17a2b8;
+      padding: 10px;
+      background-color: #d1ecf1;
+      border: 1px solid #bee5eb;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    .hint-message {
+      color: #6c757d;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="global">
+    <h2 class="title">物料查询</h2>
+    <hr class="divider" />
+    
+    <!-- 物料名称输入框 -->
+    <div class="input-section">
+      <div class="input-group">
+        <label class="input-label">物料名称:</label>
+        <input 
+          type="text" 
+          class="input-field" 
+          id="materialName" 
+          placeholder="请输入物料名称（支持模糊）" 
+        />
+      </div>
+    </div>
+    
+    <!-- 自动查询提示 -->
+    <div class="auto-query-hint">
+      <small>提示：输入内容变化时会自动查询</small>
+    </div>
+    
+    <!-- 结果显示区域 -->
+    <div class="result-section">
+      <div id="resultContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    // 物料数据（直接嵌入）
+    const materialsData = [
+      {"code": "114001895", "name": "HND-TMOS(H)"},
+      {"code": "114001896", "name": "HND-V171"},
+      {"code": "114001897", "name": "HND-V150"},
+      {"code": "114001898", "name": "HND-TMOS(L)"},
+      {"code": "114001899", "name": "HND-D171"},
+      {"code": "114001900", "name": "HND-D150"},
+      {"code": "114001901", "name": "HND-D2150"},
+      {"code": "114001902", "name": "HND-N113"},
+      {"code": "114001903", "name": "电石渣"},
+      {"code": "114001904", "name": "硅渣"},
+      {"code": "114001905", "name": "盐酸"},
+      {"code": "113000129", "name": "三甲氧基氢硅烷"},
+      {"code": "113000130", "name": "乙炔"},
+      {"code": "115055979", "name": "HND-V171_200kg_塑料桶_蓝色_华耐德"},
+      {"code": "115055980", "name": "HND-V150_200kg_塑料桶_蓝色_华耐德"},
+      {"code": "115055981", "name": "HND-TMOS(H)_200kg_塑料桶_蓝色_华耐德"},
+      {"code": "115055982", "name": "HND-D171_200kg_塑料桶_蓝色_华耐德"},
+      {"code": "115055983", "name": "HND-D150_200KG_塑料桶_蓝色_华耐德"},
+      {"code": "115055984", "name": "HND-D2150_200KG_塑料桶_蓝色_华耐德"},
+      {"code": "115055985", "name": "HND-N113_200kg_塑料桶_蓝色_华耐德"},
+      {"code": "115055989", "name": "HND-V171_200kg_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "115055990", "name": "HND-V150_200kg_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "115055991", "name": "HND-TMOS(H)_200kg_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "115055992", "name": "HND-D171_200kg_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "115055993", "name": "HND-D150_200KG_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "115055994", "name": "HND-D2150_200KG_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "115055995", "name": "HND-N113_200kg_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "115056001", "name": "HND-TMOS(L)_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056003", "name": "HND-D150_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056004", "name": "HND-D2150_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056008", "name": "盐酸_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056009", "name": "盐酸_槽车"},
+      {"code": "111001785", "name": "硅粉"},
+      {"code": "111001786", "name": "电石"},
+      {"code": "111001787", "name": "三氯氢硅"},
+      {"code": "111001788", "name": "甲醇"},
+      {"code": "111001789", "name": "次氯酸钠"},
+      {"code": "111001790", "name": "液碱"},
+      {"code": "111001791", "name": "无水氯化钙"},
+      {"code": "111001792", "name": "氯铂酸"},
+      {"code": "111001793", "name": "氯苯"},
+      {"code": "112004289", "name": "三甲氧基氢硅烷辅料包"},
+      {"code": "112004290", "name": "HND-TMOS(H)_辅料包"},
+      {"code": "112004291", "name": "HND-V171_辅料包"},
+      {"code": "112004292", "name": "HND-V150_辅料包"},
+      {"code": "111001808", "name": "1.2-双三甲氧基硅基乙烷（溶剂）"},
+      {"code": "111001831", "name": "四甲基四乙烯基环四硅氧烷"},
+      {"code": "111001832", "name": "咔唑"},
+      {"code": "111001833", "name": "150抗氧化剂"},
+      {"code": "111001834", "name": "吩噻嗪"},
+      {"code": "111001835", "name": "乙烯基双封头"},
+      {"code": "111001836", "name": "碳酸氢钠"},
+      {"code": "111001838", "name": "甲醇钠"},
+      {"code": "111001839", "name": "硫酸"},
+      {"code": "111001840", "name": "双氧水"},
+      {"code": "111001841", "name": "聚合氯化铝"},
+      {"code": "111001842", "name": "聚丙烯酰胺"},
+      {"code": "111001843", "name": "硫酸亚铁"},
+      {"code": "220000440", "name": "5kg 塑料桶 白色_华耐德"},
+      {"code": "220000441", "name": "25kg 塑料桶 蓝色_华耐德"},
+      {"code": "220000442", "name": "25kg 内衬铁桶 蓝色_华耐德"},
+      {"code": "220000443", "name": "200kg 塑料桶 蓝色_华耐德"},
+      {"code": "220000444", "name": "200kg 内衬PVF铁桶 蓝色_华耐德"},
+      {"code": "220000445", "name": "吨桶PE 白色_华耐德"},
+      {"code": "220000463", "name": "25kg_塑料外贸桶_蓝色_华耐德"},
+      {"code": "220000464", "name": "20kg_塑料内桶_白色_华耐德"},
+      {"code": "220000465", "name": "190kg_铁桶_蓝色_华耐德"},
+      {"code": "220000466", "name": "950kg_IBC桶_白色_华耐德"},
+      {"code": "220000467", "name": "5kg_内涂桶_蓝色_华耐德"},
+      {"code": "220000468", "name": "28kg_塑料桶_蓝色_华耐德"},
+      {"code": "220000486", "name": "190kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056200", "name": "HND-TMOS(H)_5kg_塑料桶_白色_华耐德"},
+      {"code": "115056201", "name": "HND-TMOS(H)_25kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056202", "name": "HND-TMOS(H)_25kg_内衬铁桶_蓝色_华耐德"},
+      {"code": "115056203", "name": "HND-TMOS(H)_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056204", "name": "HND-V171_5kg_塑料桶_白色_华耐德"},
+      {"code": "115056205", "name": "HND-V171_25kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056206", "name": "HND-V171_25kg_内衬铁桶_蓝色_华耐德"},
+      {"code": "115056207", "name": "HND-V171_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056208", "name": "HND-V150_5kg_塑料桶_白色_华耐德"},
+      {"code": "115056209", "name": "HND-V150_25kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056210", "name": "HND-V150_25kg_内衬铁桶_蓝色_华耐德"},
+      {"code": "115056211", "name": "HND-V150_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056212", "name": "HND-D171_5kg_塑料桶_白色_华耐德"},
+      {"code": "115056213", "name": "HND-D171_25kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056214", "name": "HND-D171_25kg_内衬铁桶_蓝色_华耐德"},
+      {"code": "115056215", "name": "HND-D171_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "115056216", "name": "HND-N113_5kg_塑料桶_白色_华耐德"},
+      {"code": "115056217", "name": "HND-N113_25kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056218", "name": "HND-N113_25kg_内衬铁桶_蓝色_华耐德"},
+      {"code": "115056219", "name": "HND-N113_1000kg_吨桶PE_白色_华耐德"},
+      {"code": "111001856", "name": "二甲基二苯基醚"},
+      {"code": "114001928", "name": "四氯化硅"},
+      {"code": "112004336", "name": "HND-TMOS(L)_辅料包"},
+      {"code": "112004337", "name": "HND-N113_辅料包"},
+      {"code": "114001938", "name": "HND-171合成粗品"},
+      {"code": "114001940", "name": "HND-150合成粗品"},
+      {"code": "115056298", "name": "HND-TMOS(L)_5kg_塑料桶_白色_华耐德"},
+      {"code": "115056299", "name": "HND-TMOS(L)_25kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056300", "name": "HND-TMOS(L)_25kg_内衬铁桶_蓝色_华耐德"},
+      {"code": "115056301", "name": "HND-TMOS(L)_200kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056302", "name": "HND-TMOS(L)_200kg_内衬PVF铁桶_蓝色_华耐德"},
+      {"code": "114001944", "name": "HND-TMOS粗品"},
+      {"code": "220000469", "name": "1000ml氟化塑料瓶"},
+      {"code": "220000470", "name": "500ml氟化塑料瓶"},
+      {"code": "220000471", "name": "250ml氟化塑料瓶"},
+      {"code": "220000472", "name": "100ml氟化塑料瓶"},
+      {"code": "115056406", "name": "HND-V171_20kg_塑料内桶_白色_华耐德"},
+      {"code": "115056407", "name": "HND-V171_25kg_塑料桶_蓝色_华耐德(外贸)"},
+      {"code": "115056408", "name": "HND-V171_190kg_铁桶_蓝色_华耐德"},
+      {"code": "115056409", "name": "HND-V171_950kg_IBC桶_白色_华耐德"},
+      {"code": "115056410", "name": "HND-TMOS(H)_5kg_内涂桶_蓝色_华耐德"},
+      {"code": "115056411", "name": "HND-TMOS(L)_5kg_内涂桶_蓝色_华耐德"},
+      {"code": "115056412", "name": "HND-N113_28kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056413", "name": "HND-N113_190kg_塑料桶_蓝色_华耐德"},
+      {"code": "115056414", "name": "HND-N113_190kg_铁桶_蓝色_华耐德"},
+      {"code": "115056415", "name": "HND-N113_900kg_IBC桶_白色_华耐德"},
+      {"code": "111001411", "name": "正丁醇"},
+      {"code": "111000363", "name": "异丙醇"}
+    ];
+    
+    // 搜索函数
+    function searchMaterials(keyword) {
+      if (!keyword) {
+        return [];
+      }
+      
+      const lowerKeyword = keyword.toLowerCase().trim();
+      
+      // 筛选包含所有关键词部分的物料
+      return materialsData.filter(material => {
+        const lowerName = material.name.toLowerCase();
+        
+        // 检查数字部分
+        const numberParts = lowerKeyword.match(/\d+/g) || [];
+        const hasAllNumbers = numberParts.every(num => lowerName.includes(num));
+        
+        // 检查汉字部分
+        const chineseChars = lowerKeyword.match(/[\u4e00-\u9fa5]/g) || [];
+        const hasAllChinese = chineseChars.every(char => lowerName.includes(char));
+        
+        return hasAllNumbers && hasAllChinese;
+      });
+    }
+    
+    // 高亮函数
+    function highlightKeyword(text, keyword) {
+      if (!keyword) return text;
+      
+      let highlightedText = text;
+      const lowerKeyword = keyword.toLowerCase().trim();
+      
+      // 高亮数字部分
+      const numberParts = lowerKeyword.match(/\d+/g) || [];
+      numberParts.forEach(numberPart => {
+        const regex = new RegExp(numberPart, 'gi');
+        highlightedText = highlightedText.replace(regex, match => 
+          `<span class="highlight">${match}</span>`
+        );
+      });
+      
+      // 高亮汉字部分
+      const chineseChars = lowerKeyword.match(/[\u4e00-\u9fa5]/g) || [];
+      chineseChars.forEach(chineseChar => {
+        const regex = new RegExp(chineseChar, 'gi');
+        highlightedText = highlightedText.replace(regex, match => 
+          `<span class="highlight">${match}</span>`
+        );
+      });
+      
+      return highlightedText;
+    }
+    
+    // 渲染结果
+    function renderResult(result, keyword) {
+      const container = document.getElementById('resultContainer');
+      
+      if (result.length > 0) {
+        // 渲染结果表格
+        let html = `<div class="result-container">
+          <div class="result-header">查询结果 (${result.length})</div>
+          <div class="result-table-container">
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>物料编码</th>
+                  <th>物料名称</th>
+                </tr>
+              </thead>
+              <tbody>`;
+        
+        result.forEach((item, index) => {
+          html += `<tr class="result-row">
+            <td>${index + 1}</td>
+            <td>${item.code}</td>
+            <td>${highlightKeyword(item.name, keyword)}</td>
+          </tr>`;
+        });
+        
+        html += `</tbody></table></div></div>`;
+        container.innerHTML = html;
+      } else if (keyword) {
+        // 显示未找到提示
+        container.innerHTML = `<div class="info-message">未找到符合条件的物料</div>`;
+      } else {
+        // 显示请输入提示
+        container.innerHTML = `<div class="hint-message">请输入物料名称进行查询</div>`;
+      }
+    }
+    
+    // 自动查询
+    let debounceTimer = null;
+    document.getElementById('materialName').addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      const keyword = this.value;
+      
+      debounceTimer = setTimeout(() => {
+        const result = searchMaterials(keyword);
+        renderResult(result, keyword);
+      }, 500);
+    });
+    
+    // 初始渲染
+    renderResult([], '');
+  </script>
+</body>
+</html>

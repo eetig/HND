@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物料模糊查询</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            margin: 0;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .query-section {
+            margin-bottom: 20px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #resultlist {
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        .result-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .result-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-code {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .result-name {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>物料模糊查询</h2>
+    <div class="query-section">
+        <input id="keyword" placeholder="输入物料名称关键词" style="width:100%; padding:8px;" />
+        <button id="searchBtn">搜索</button>
+    </div>
+    <div id="resultlist" style="margin-top:10px; max-height:400px; overflow-y:auto;"></div>
+    
+    <script src="taskpane.js"></script>
+</body>
+</html>

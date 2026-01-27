@@ -15,7 +15,7 @@ export default defineConfig({
     functionsScanner({
       inputJsPath: 'src/components/js/functions.js',
       outputJsonPath: 'functions.json',
-      namespace: 'HelloEt',
+      namespace: 'HND',
     }),
     vue()
   ],

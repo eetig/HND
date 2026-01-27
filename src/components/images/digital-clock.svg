@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- 背景 -->
+  <rect x="2" y="2" width="28" height="28" rx="4" fill="#333"/>
+  
+  <!-- 数字显示区域 -->
+  <g transform="translate(4, 6)">
+    <!-- 第一个数字 (1) -->
+    <rect x="0" y="0" width="5" height="20" rx="1" fill="#fff"/>
+    
+    <!-- 冒号 -->
+    <circle cx="7" cy="6" r="1" fill="#fff"/>
+    <circle cx="7" cy="14" r="1" fill="#fff"/>
+    
+    <!-- 第二个数字 (2) -->
+    <rect x="9" y="0" width="5" height="20" rx="1" fill="#fff"/>
+    
+    <!-- 冒号 -->
+    <circle cx="16" cy="6" r="1" fill="#fff"/>
+    <circle cx="16" cy="14" r="1" fill="#fff"/>
+    
+    <!-- 第三个数字 (3) -->
+    <rect x="18" y="0" width="5" height="20" rx="1" fill="#fff"/>
+  </g>
+</svg>

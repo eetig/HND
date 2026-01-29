@@ -224,3 +224,143 @@ function V_SiHCl3_314(h) {
     
     return volume;
 }
+
+// 表格数据（移到函数外部，避免每次调用都重新创建）
+const tableData = [
+    { orderNo: "1000159352", materialCode: "113000129", materialName: "三甲氧基氢硅烷", actualInput1: "二甲基二苯基醚", actualInput2: "硅粉", actualInput3: "甲醇", actualInput4: "", actualInput5: "", actualOutput1: "三甲氧基氢硅烷", actualOutput2: "HND-N113", actualOutput3: "HND-TMOS(L)粗品" },
+    { orderNo: "1000159353", materialCode: "113000130", materialName: "乙炔", actualInput1: "次氯酸钠", actualInput2: "电石", actualInput3: "无水氯化钙", actualInput4: "HB6008", actualInput5: "", actualOutput1: "乙炔", actualOutput2: "电石渣", actualOutput3: "" },
+    { orderNo: "1000159354", materialCode: "114001940", materialName: "HND-V150合成粗品", actualInput1: "氯铂酸", actualInput2: "三氯氢硅", actualInput3: "乙炔", actualInput4: "HND-V150_辅料包", actualInput5: "", actualOutput1: "HND-V150合成粗品", actualOutput2: "HND-D150", actualOutput3: "四氯化硅" },
+    { orderNo: "1000159355", materialCode: "114001938", materialName: "HND-V171合成粗品", actualInput1: "氯铂酸", actualInput2: "三甲氧基氢硅烷", actualInput3: "乙炔", actualInput4: "HND-V171_辅料包", actualInput5: "", actualOutput1: "HND-V171合成粗品", actualOutput2: "HND-D171", actualOutput3: "" },
+    { orderNo: "2000282534", materialCode: "115055993", materialName: "HND-D150_200KG_内衬PVF铁桶_蓝色_华耐德", actualInput1: "HND-D150", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-D150_200KG_内衬PVF铁桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282535", materialCode: "115055983", materialName: "HND-D150_200KG_塑料桶_蓝色_华耐德", actualInput1: "HND-D150", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-D150_200KG_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282536", materialCode: "115055982", materialName: "HND-D171_200kg_塑料桶_蓝色_华耐德", actualInput1: "HND-D171", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-D171_200kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282537", materialCode: "115056413", materialName: "HND-N113_190kg_塑料桶_蓝色_华耐德", actualInput1: "HND-N113", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-N113_190kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282538", materialCode: "115056217", materialName: "HND-N113_25kg_塑料桶_蓝色_华耐德", actualInput1: "HND-N113", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-N113_25kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282539", materialCode: "115056001", materialName: "HND-TMOS(L)_1000kg_吨桶PE_白色_华耐德", actualInput1: "HND-TMOS(L)", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_1000kg_吨桶PE_白色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282558", materialCode: "115056302", materialName: "HND-TMOS(L)_200kg_内衬PVF铁桶_蓝色_华耐德", actualInput1: "HND-TMOS(L)", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_200kg_内衬PVF铁桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "4000036386", materialCode: "115056302", materialName: "HND-TMOS(L)_200kg_内衬PVF铁桶_蓝色_华耐德", actualInput1: "HND-TMOS(L)_200kg_内衬PVF铁桶_蓝色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_200kg_内衬PVF铁桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282557", materialCode: "115056301", materialName: "HND-TMOS(L)_200kg_塑料桶_蓝色_华耐德", actualInput1: "HND-TMOS(L)", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_200kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000017554", materialCode: "115056301", materialName: "HND-TMOS(L)_200kg_塑料桶_蓝色_华耐德", actualInput1: "HND-TMOS(L)_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_200kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "4000033283", materialCode: "115056301", materialName: "HND-TMOS(L)_200kg_塑料桶_蓝色_华耐德", actualInput1: "HND-TMOS(L)_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_200kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000303629", materialCode: "115056299", materialName: "HND-TMOS(L)_25kg_塑料桶_蓝色_华耐德", actualInput1: "HND-TMOS(L)", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_25kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000020059", materialCode: "115056299", materialName: "HND-TMOS(L)_25kg_塑料桶_蓝色_华耐德", actualInput1: "HND-TMOS(L)_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)_25kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000280972", materialCode: "115057768", materialName: "HND-V150_200kg_钢塑复合桶_蓝色_华耐德", actualInput1: "HND-V150", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V150_200kg_钢塑复合桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000266989", materialCode: "115055980", materialName: "HND-V150_200kg_塑料桶_蓝色_华耐德(220)", actualInput1: "HND-V150", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V150_200kg_塑料桶_蓝色_华耐德(220)", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000289562", materialCode: "115057979", materialName: "HND-V150_槽车", actualInput1: "HND-V150", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V150_槽车", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000266040", materialCode: "115056207", materialName: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput1: "HND-V171", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000019463", materialCode: "115056207", materialName: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "4000033177", materialCode: "115056207", materialName: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000281927", materialCode: "115055989", materialName: "HND-V171_200kg_内衬PVF铁桶_蓝色_华耐德(190)", actualInput1: "HND-V171", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_200kg_内衬PVF铁桶_蓝色_华耐德(190)", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000017503", materialCode: "115055989", materialName: "HND-V171_200kg_内衬PVF铁桶_蓝色_华耐德(190)", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_200kg_内衬PVF铁桶_蓝色_华耐德(190)", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000018232", materialCode: "115056205", materialName: "HND-V171_25kg_塑料桶_蓝色_华耐德", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_25kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000018711", materialCode: "115058270", materialName: "HND-V171_28kg_塑料桶_蓝色_华耐德", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_28kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000018081", materialCode: "115056204", materialName: "HND-V171_5kg_塑料桶_白色_华耐德", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_5kg_塑料桶_白色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000287759", materialCode: "115055986", materialName: "电石渣_槽车", actualInput1: "电石渣", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "电石渣_槽车", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "1000157220", materialCode: "114001897", materialName: "HND-V150", actualInput1: "HND-V150合成粗品", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V150", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "4000033284", materialCode: "114001897", materialName: "HND-V150", actualInput1: "HND-V150_200kg_塑料桶_蓝色_华耐德(220)", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V150", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "1000157217", materialCode: "114001896", materialName: "HND-V171", actualInput1: "HND-V171合成粗品", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "1000157628", materialCode: "114001898", materialName: "HND-TMOS(L)", actualInput1: "HND-TMOS(L)粗品", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000019300", materialCode: "115055979", materialName: "HND-V171_200kg_塑料桶_蓝色_华耐德(190)", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_200kg_塑料桶_蓝色_华耐德(190)", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "2000282666", materialCode: "115057945", materialName: "三甲氧基氢硅烷_200kg内衬PVF铁桶_蓝色_华耐德", actualInput1: "三甲氧基氢硅烷", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "三甲氧基氢硅烷_200kg内衬PVF铁桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" }
+];
+
+/**
+ * 根据订单号、物料编码和列名匹配查询结果
+ * @customfunction
+ * @param {string} a - 订单号（只匹配前3位）
+ * @param {string} b - 物料编码
+ * @param {string} c - 列名（如"实际投料1"、"实际收货2"等）
+ * @returns {string} - 匹配的单元格值
+ */
+function gdwl(a, b, c) {
+    try {
+        // 处理参数类型，确保都是字符串
+        a = String(a || "");
+        b = String(b || "");
+        c = String(c || "");
+        
+        // 表格数据已移到函数外部
+
+        // 列名映射
+        const columnMapping = {
+            '实际投料1': 'actualInput1',
+            '实际投料2': 'actualInput2',
+            '实际投料3': 'actualInput3',
+            '实际投料4': 'actualInput4',
+            '实际投料5': 'actualInput5',
+            '实际收货1': 'actualOutput1',
+            '实际收货2': 'actualOutput2',
+            '实际收货3': 'actualOutput3',
+            '投料1': 'actualInput1',
+            '投料2': 'actualInput2',
+            '投料3': 'actualInput3',
+            '投料4': 'actualInput4',
+            '投料5': 'actualInput5',
+            '收货1': 'actualOutput1',
+            '收货2': 'actualOutput2',
+            '收货3': 'actualOutput3'
+        };
+
+        const orderNoPrefix = a.substring(0, 3);
+
+        if (!window.gdwlMap) {
+            window.gdwlMap = new Map();
+            tableData.forEach(item => {
+                const key = `${item.orderNo.substring(0, 3)}_${item.materialCode}`;
+                window.gdwlMap.set(key, item);
+            });
+        }
+
+        const matchedItem = window.gdwlMap.get(`${orderNoPrefix}_${b}`) || null;
+
+        // 如果找到匹配项，根据列名返回对应的值
+        if (matchedItem) {
+            // 只进行精准匹配
+            if (columnMapping[c]) {
+                return matchedItem[columnMapping[c]] || "";
+            }
+            return "";
+        }
+
+        // 无匹配结果返回空字符串
+        return "";
+    } catch (error) {
+        // 捕获所有错误，返回空字符串，避免Excel显示#VALUE!
+        console.error("gdwl函数错误:", error);
+        return "";
+    }
+}
+
+// 确保函数在全局作用域中可用
+if (typeof window !== 'undefined') {
+    window.gdwl = gdwl;
+    window.wlmc = wlmc;
+}
+
+/**
+ * 根据物料编码返回物料名称
+ * @customfunction
+ * @param {string} a - 物料编码
+ * @returns {string} - 对应的物料名称
+ */
+function wlmc(a) {
+    try {
+        // 处理参数类型，确保是字符串
+        a = String(a || "");
+        
+        // 使用Map构建高效的hash索引（性能优化）
+        if (!window.wlmcMap) {
+            window.wlmcMap = new Map();
+            tableData.forEach(item => {
+                window.wlmcMap.set(item.materialCode, item.materialName);
+            });
+        }
+        
+        // 直接通过hash键快速查找
+        return window.wlmcMap.get(a) || "";
+    } catch (error) {
+        // 捕获所有错误，返回空字符串，避免Excel显示#VALUE!
+        console.error("wlmc函数错误:", error);
+        return "";
+    }
+}

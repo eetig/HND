@@ -261,6 +261,8 @@ const tableData = [
     { orderNo: "1000157217", materialCode: "114001896", materialName: "HND-V171", actualInput1: "HND-V171合成粗品", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171", actualOutput2: "", actualOutput3: "" },
     { orderNo: "1000157628", materialCode: "114001898", materialName: "HND-TMOS(L)", actualInput1: "HND-TMOS(L)粗品", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-TMOS(L)", actualOutput2: "", actualOutput3: "" },
     { orderNo: "3000019300", materialCode: "115055979", materialName: "HND-V171_200kg_塑料桶_蓝色_华耐德(190)", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_200kg_塑料桶_蓝色_华耐德(190)", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "3000019300", materialCode: "115055985", materialName: "HND-N113_200kg_塑料桶_蓝色_华耐德", actualInput1: "HND-N113_190kg_塑料桶_蓝色_华耐德", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-N113_200kg_塑料桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" },
+    { orderNo: "4000037901", materialCode: "115056207", materialName: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualInput2: "HND-V171_200kg_内衬PVF铁桶_蓝色_华耐德(190)", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "HND-V171_1000kg_吨桶PE_白色_华耐德", actualOutput2: "", actualOutput3: "" },
     { orderNo: "2000282666", materialCode: "115057945", materialName: "三甲氧基氢硅烷_200kg内衬PVF铁桶_蓝色_华耐德", actualInput1: "三甲氧基氢硅烷", actualInput2: "", actualInput3: "", actualInput4: "", actualInput5: "", actualOutput1: "三甲氧基氢硅烷_200kg内衬PVF铁桶_蓝色_华耐德", actualOutput2: "", actualOutput3: "" }
 ];
 

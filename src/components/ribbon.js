@@ -571,9 +571,9 @@ function OnAction(control) {
                                     });
                                 }
                                 // 合并配置：保留其他工作簿的配置，只更新当前工作簿的配置
-                                const mergedConfigs = allConfigs.filter(config => 
-                                    config.workbookFullName !== currentWorkbook.FullName
-                                ).concat(currentConfigs);
+                            const mergedConfigs = allConfigs.filter(config => 
+                                config.workbookFullName !== workbook.FullName
+                            ).concat(currentConfigs);
                                 // 保存到localStorage
                                 saveDynamicTimeConfig(mergedConfigs);
                             } catch (e) {

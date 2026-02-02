@@ -910,6 +910,106 @@ function OnAction(control) {
                     }
                 }
                 break
+                
+            case "btnTankVolume":
+                {
+                    // 储罐容积计算功能：切换储罐容积计算TaskPane的显示/隐藏
+                    try {
+                        console.log("开始执行储罐容积计算功能");
+                        
+                        // 检查WPS应用环境
+                        if (!window.Application) {
+                            throw new Error("无法访问WPS应用对象");
+                        }
+                        
+                        // 1. 检查其他窗格是否开启，如果开启，则关闭
+                        // 关闭物料查询任务窗格
+                        let materialTaskPaneId = window.Application.PluginStorage.getItem("material_query_taskpane_id");
+                        if (materialTaskPaneId) {
+                            try {
+                                let materialTskpane = window.Application.GetTaskPane(materialTaskPaneId);
+                                if (materialTskpane && materialTskpane.Visible) {
+                                    materialTskpane.Visible = false;
+                                    console.log("隐藏物料查询任务窗格");
+                                }
+                            } catch (e) {
+                                console.log("无法获取物料查询任务窗格");
+                            }
+                        }
+                        
+                        // 关闭科学计算器任务窗格
+                        let calculatorTaskPaneId = window.Application.PluginStorage.getItem("scientific_calculator_taskpane_id");
+                        if (calculatorTaskPaneId) {
+                            try {
+                                let calculatorTskpane = window.Application.GetTaskPane(calculatorTaskPaneId);
+                                if (calculatorTskpane && calculatorTskpane.Visible) {
+                                    calculatorTskpane.Visible = false;
+                                    console.log("隐藏科学计算器任务窗格");
+                                }
+                            } catch (e) {
+                                console.log("无法获取科学计算器任务窗格");
+                            }
+                        }
+                        
+                        // 关闭汇率换算任务窗格
+                        let currencyTaskPaneId = window.Application.PluginStorage.getItem("currency_converter_taskpane_id");
+                        if (currencyTaskPaneId) {
+                            try {
+                                let currencyTskpane = window.Application.GetTaskPane(currencyTaskPaneId);
+                                if (currencyTskpane && currencyTskpane.Visible) {
+                                    currencyTskpane.Visible = false;
+                                    console.log("隐藏汇率换算任务窗格");
+                                }
+                            } catch (e) {
+                                console.log("无法获取汇率换算任务窗格");
+                            }
+                        }
+                        
+                        // 2. 检查当前窗格是否开启，如果开启，则关闭，如果未开启，则开启
+                        let taskPaneId = window.Application.PluginStorage.getItem("tank_volume_taskpane_id");
+                        let tskpane = null;
+                        let isVisible = false;
+                        
+                        if (taskPaneId) {
+                            try {
+                                tskpane = window.Application.GetTaskPane(taskPaneId);
+                                isVisible = tskpane && tskpane.Visible;
+                            } catch (e) {
+                                console.log("无法获取已存在的任务窗格");
+                                tskpane = null;
+                                isVisible = false;
+                            }
+                        }
+                        
+                        if (isVisible) {
+                            // 当前窗格已开启，关闭它
+                            tskpane.Visible = false;
+                            console.log("关闭储罐容积计算任务窗格");
+                        } else {
+                            // 当前窗格未开启，开启它
+                            if (tskpane) {
+                                // 任务窗格存在但不可见，直接显示
+                                tskpane.Visible = true;
+                                console.log("显示储罐容积计算任务窗格");
+                            } else {
+                                // 任务窗格不存在，创建新的
+                                let baseUrl = window.location.href;
+                                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, 'index.html#/tank-volume');
+                                tskpane = window.Application.CreateTaskPane(taskPaneUrl);
+                                let id = tskpane.ID;
+                                window.Application.PluginStorage.setItem("tank_volume_taskpane_id", id);
+                                tskpane.Visible = true;
+                                console.log("创建并显示储罐容积计算任务窗格，ID:", id);
+                            }
+                        }
+                        
+                    } catch (error) {
+                        console.error("储罐容积计算功能失败:", error);
+                        console.error("错误堆栈:", error.stack);
+                        alert(`储罐容积计算功能失败:\n详细错误: ${error.message}`);
+                    }
+                }
+                break
 
             default:
                 break
@@ -1062,6 +1162,9 @@ function GetImage(control) {
         case "btnCurrencyConverter":
             // 使用汇率换算样式的图标
             return "images/calculator.svg"
+        case "btnTankVolume":
+            // 使用储罐容积计算样式的图标
+            return "images/calculator.svg"
 
         default:
             return "images/newFromTemp.svg"
@@ -1074,8 +1177,8 @@ function OnGetEnabled(control) {
 
 function OnGetVisible(control){
     const eleId = control.Id
-    // 显示"填入图片"、"添加批注"、"物料查询"、"动态时间"、"科学计算器"和"汇率换算"按钮
-    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime" || eleId === "btnScientificCalculator" || eleId === "btnCurrencyConverter"
+    // 显示"填入图片"、"添加批注"、"物料查询"、"动态时间"、"科学计算器"、"汇率换算"和"储罐容积计算"按钮
+    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime" || eleId === "btnScientificCalculator" || eleId === "btnCurrencyConverter" || eleId === "btnTankVolume"
 }
 
 function OnGetLabel(control){
@@ -1093,6 +1196,8 @@ function OnGetLabel(control){
             return "科学计算器"
         case "btnCurrencyConverter":
             return "汇率换算"
+        case "btnTankVolume":
+            return "储罐容积计算"
 
         default:
             return ""

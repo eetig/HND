@@ -38,6 +38,11 @@ const router = createRouter({
       path: '/currency',
       name: '汇率换算',
       component: () => import('../components/CurrencyConverterTaskPane.vue')
+    },
+    {
+      path: '/tank-volume',
+      name: '储罐容积计算',
+      component: () => import('../components/TankVolumeCalculatorTaskPane.vue')
     }
   ]
 })

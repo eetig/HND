@@ -75,89 +75,103 @@ function OnAddinLoad(ribbonUI){
     console.log('初始化动态时钟数组');
 
     // 加载并恢复之前的动态时钟配置
+    function updateClockCell(clockConfig) {
+        try {
+            // 检查Workbook对象是否有效
+            if (!clockConfig.workbook) return;
+            
+            // 尝试访问Workbook的属性，检查是否有效
+            clockConfig.workbook.Name;
+            
+            // Workbook有效，执行更新
+            const sheet = clockConfig.workbook.Sheets.Item(clockConfig.sheetName);
+            const range = sheet.Range(clockConfig.address);
+            // 尝试使用Value2设置值
+            const timeString = getNowTimeString();
+            
+            // 只在值发生变化时更新，减少对撤回栈的影响
+            if (range.Value2 !== timeString) {
+                range.Value2 = timeString;
+            }
+            
+            // 只在第一次设置格式，避免重复操作影响撤回栈
+            if (!clockConfig.formatSet) {
+                range.NumberFormatLocal = "yyyy/mm/dd hh:mm:ss";
+                clockConfig.formatSet = true;
+            }
+        } catch (workbookError) {
+            // Workbook对象失效，清除定时器
+            clearInterval(clockConfig.intervalId);
+            // 从数组中删除
+            if (window.dynamicTimeClocks) {
+                const index = window.dynamicTimeClocks.indexOf(clockConfig);
+                if (index > -1) {
+                    window.dynamicTimeClocks.splice(index, 1);
+                }
+            }
+        }
+    }
+
+    function createClockConfig(config, currentWorkbook) {
+        try {
+            // 检查工作表是否存在
+            const sheet = currentWorkbook.Sheets.Item(config.sheetName);
+            if (!sheet) return null;
+            
+            // 创建新的动态时钟配置
+            const clockConfig = {
+                address: config.address,
+                sheetName: config.sheetName,
+                workbook: currentWorkbook,
+                intervalId: null,
+                formatSet: false
+            };
+            
+            // 为当前单元格创建定时器
+            clockConfig.intervalId = setInterval(function() {
+                updateClockCell(clockConfig);
+            }, 1000); // 每秒执行一次
+            
+            return clockConfig;
+        } catch (e) {
+            // 静默处理错误
+            return null;
+        }
+    }
+
     function restoreDynamicTimeClocks() {
         try {
             const savedConfigs = loadDynamicTimeConfig();
-            if (savedConfigs.length > 0) {
-                // 获取当前工作簿
-                const currentWorkbook = window.Application.ActiveWorkbook;
-                if (currentWorkbook) {
-                    const workbookName = currentWorkbook.Name;
-                    const currentWorkbookFullName = currentWorkbook.FullName;
-                    
-                    // 检查是否有匹配当前工作簿的配置
-                    for (const config of savedConfigs) {
-                        if (config.workbookFullName === currentWorkbookFullName) {
-                            try {
-                                // 检查工作表是否存在
-                                const sheet = currentWorkbook.Sheets.Item(config.sheetName);
-                                if (sheet) {
-                                    // 创建新的动态时钟配置
-                                    const clockConfig = {
-                                        address: config.address,
-                                        sheetName: config.sheetName,
-                                        workbook: currentWorkbook,
-                                        intervalId: null
-                                    };
-                                    
-                                    // 为当前单元格创建定时器
-                                    clockConfig.intervalId = setInterval(function() {
-                                        // 获取当前时间字符串
-                                        const timeString = getNowTimeString();
-                                        
-                                        // 更新单元格
-                                        try {
-                                            // 检查Workbook对象是否有效
-                                            if (clockConfig.workbook) {
-                                                try {
-                                                    // 尝试访问Workbook的属性，检查是否有效
-                                                    const workbookName = clockConfig.workbook.Name;
-                                                    
-                                                    // Workbook有效，执行更新
-                                                    const sheet = clockConfig.workbook.Sheets.Item(clockConfig.sheetName);
-                                                    const range = sheet.Range(clockConfig.address);
-                                                    // 尝试使用Value2设置值
-                                                    range.Value2 = timeString;
-                                                    
-                                                    // 设置单元格格式
-                                                    range.NumberFormatLocal = "yyyy/m/d hh:mm:ss";
-                                                } catch (workbookError) {
-                                                    // Workbook对象失效，清除定时器
-                                                    clearInterval(clockConfig.intervalId);
-                                                    // 从数组中删除
-                                                    if (window.dynamicTimeClocks) {
-                                                        const index = window.dynamicTimeClocks.indexOf(clockConfig);
-                                                        if (index > -1) {
-                                                            window.dynamicTimeClocks.splice(index, 1);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } catch (e) {
-                                            // 静默处理错误
-                                        }
-                                    }, 1000); // 每秒执行一次
-                                    
-                                    // 将新的动态时钟添加到数组中
-                                    window.dynamicTimeClocks.push(clockConfig);
-                                    console.log('恢复动态时钟:', {
-                                        workbook: config.workbookName,
-                                        workbookFullPath: config.workbookFullName,
-                                        sheet: config.sheetName,
-                                        cell: config.address
-                                    });
-                                }
-                            } catch (e) {
-                                // 静默处理错误
-                            }
-                        }
-                    }
-                }
+            if (savedConfigs.length === 0) return;
+            
+            // 获取当前工作簿
+            const currentWorkbook = window.Application.ActiveWorkbook;
+            if (!currentWorkbook) return;
+            
+            const currentWorkbookFullName = currentWorkbook.FullName;
+            
+            // 检查是否有匹配当前工作簿的配置
+            for (const config of savedConfigs) {
+                if (config.workbookFullName !== currentWorkbookFullName) continue;
+                
+                const clockConfig = createClockConfig(config, currentWorkbook);
+                if (!clockConfig) continue;
+                
+                // 将新的动态时钟添加到数组中
+                window.dynamicTimeClocks.push(clockConfig);
+                console.log('恢复动态时钟:', {
+                    workbook: config.workbookName,
+                    workbookFullPath: config.workbookFullName,
+                    sheet: config.sheetName,
+                    cell: config.address
+                });
             }
         } catch (e) {
             // 静默处理错误
         }
     }
+
+
 
     // 调用恢复函数
     restoreDynamicTimeClocks();
@@ -268,129 +282,110 @@ function OnAction(control) {
                         return true;
                     }
                     
-                    // 打开文件选择对话框，允许多选图片
-                    let selectedImages = [];
-                    
-                    // 使用WPS API的FileDialog方法打开文件选择对话框
-                    if (window.Application.FileDialog) {
-                        console.log("尝试使用Application.FileDialog方法打开文件选择对话框");
-                        
-                        const fileDialog = window.Application.FileDialog(3); // 3代表msoFileDialogFilePicker
-                        
-                        // 设置文件对话框属性
-                        fileDialog.AllowMultiSelect = true; // 允许多选
-                        fileDialog.Title = "选择批注图片"; // 对话框标题
-                        fileDialog.Filters.Clear(); // 清除默认过滤器
-                        // 添加图片文件过滤器
-                        fileDialog.Filters.Add("图片文件", "*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.svg");
-                        fileDialog.Filters.Add("所有文件", "*.*");
-                        
-                        // 显示文件对话框
-                        const userSelected = fileDialog.Show();
-                        if (userSelected) {
-                            // 获取选中的图片路径
-                            selectedImages = [];
-                            for (let i = 1; i <= fileDialog.SelectedItems.Count; i++) {
-                                selectedImages.push(fileDialog.SelectedItems.Item(i));
-                            }
-                            console.log("选中的批注图片:", selectedImages);
-                            
-                            // 检查是否有选中的图片
-                            if (selectedImages.length === 0) {
-                                alert("没有选中任何图片");
-                                return true;
-                            }
-                            
-                            // 将选中的图片以选中单元格为起点依次向下方单元格添加批注
-                            try {
-                                // 获取当前选中单元格
-                                const activeSheet = window.Application.ActiveSheet;
-                                const startCell = window.Application.ActiveCell;
-                                
-                                // 获取起始行列
-                                const startRow = startCell.Row;
-                                const startColumn = startCell.Column;
-                                
-                                // 遍历所有选中的图片，依次向下单元格添加批注
-                                for (let i = 0; i < selectedImages.length; i++) {
-                                    // 计算当前单元格的行列
-                                    const currentRow = startRow + i;
-                                    const currentColumn = startColumn;
-                                    
-                                    // 获取当前单元格
-                                    const currentCell = activeSheet.Cells.Item(currentRow, currentColumn);
-                                    if (!currentCell) {
-                                        throw new Error(`无法获取单元格: 行${currentRow}，列${currentColumn}`);
-                                    }
-                                    
-                                    // 1. 先删除单元格现有的批注（如果有）
-                                    if (currentCell.Comment) {
-                                        currentCell.Comment.Delete();
-                                    }
-                                    
-                                    // 2. 为单元格添加新批注
-                                    currentCell.AddComment("");
-                                    
-                                    // 3. 获取批注对象
-                                    const comment = currentCell.Comment;
-                                    if (!comment) {
-                                        throw new Error(`无法为单元格添加批注: 行${currentRow}，列${currentColumn}`);
-                                    }
-                                    
-                                    // 4. 在批注中插入图片
-                                    // 获取批注的Shape对象
-                                    const commentShape = comment.Shape;
-                                    if (!commentShape) {
-                                        throw new Error(`无法获取批注Shape对象: 行${currentRow}，列${currentColumn}`);
-                                    }
-                                    
-                                    // 调整批注大小
-                                    commentShape.Width = 680; // 设置批注宽度
-                                    commentShape.Height = 420; // 设置批注高度
-                                    
-                                    // 5. 在批注中添加图片
-                                    const selectedImage = selectedImages[i];
-
-                                    // 7.使用AddPicture方法在批注中插入图片
-                                    const shapes = commentShape.Shapes;
-                                    if (shapes && typeof shapes.AddPicture === 'function') {
-                                        // 在批注中插入图片
-                                        const picture = shapes.AddPicture(
-                                            selectedImage, // 图片路径
-                                            false, // 不链接到文件
-                                            true, // 保存到文档
-                                            0, // 图片左上角X坐标
-                                            0, // 图片左上角Y坐标
-                                            commentShape.Width, // 图片宽度，与批注宽度相同
-                                            commentShape.Height // 图片高度，与批注高度相同
-                                        );
-                                        
-                                        console.log(`图片已添加到批注中: 行${currentRow}，列${currentColumn}`);
-                                    } else {
-                                        // 备选方案：使用Fill.UserPicture方法填充批注背景
-                                        if (commentShape.Fill && typeof commentShape.Fill.UserPicture === 'function') {
-                                            commentShape.Fill.UserPicture(selectedImage);
-                                            console.log(`图片已作为背景添加到批注中: 行${currentRow}，列${currentColumn}`);
-                                        } else {
-                                            throw new Error(`当前WPS版本不支持在批注中插入图片: 行${currentRow}，列${currentColumn}`);
-                                        }
-                                    }
-                                }
-                                
-                                alert(`成功为 ${selectedImages.length} 个单元格添加了批注图片！`);
-                                
-                            } catch (commentError) {
-                                console.error("添加图片到批注失败:", commentError);
-                                alert(`添加图片到批注失败:\n详细错误: ${commentError.message}`);
-                            }
-                        } else {
-                            console.log("用户取消了文件选择");
-                            return true;
-                        }
-                    } else {
+                    // 检查FileDialog支持
+                    if (!window.Application.FileDialog) {
                         throw new Error("当前WPS版本不支持FileDialog方法");
                     }
                     
+                    // 打开文件选择对话框
+                    console.log("尝试使用Application.FileDialog方法打开文件选择对话框");
+                    const fileDialog = window.Application.FileDialog(3); // 3代表msoFileDialogFilePicker
+                    
+                    // 设置文件对话框属性
+                    fileDialog.AllowMultiSelect = true; // 允许多选
+                    fileDialog.Title = "选择批注图片"; // 对话框标题
+                    fileDialog.Filters.Clear(); // 清除默认过滤器
+                    fileDialog.Filters.Add("图片文件", "*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.svg");
+                    fileDialog.Filters.Add("所有文件", "*.*");
+                    
+                    // 显示文件对话框
+                    const userSelected = fileDialog.Show();
+                    if (!userSelected) {
+                        console.log("用户取消了文件选择");
+                        return true;
+                    }
+                    
+                    // 获取选中的图片路径
+                    const selectedImages = [];
+                    for (let i = 1; i <= fileDialog.SelectedItems.Count; i++) {
+                        selectedImages.push(fileDialog.SelectedItems.Item(i));
+                    }
+                    console.log("选中的批注图片:", selectedImages);
+                    
+                    // 检查是否有选中的图片
+                    if (selectedImages.length === 0) {
+                        alert("没有选中任何图片");
+                        return true;
+                    }
+                    
+                    // 获取当前选中单元格和起始位置
+                    const activeSheet = window.Application.ActiveSheet;
+                    const startCell = window.Application.ActiveCell;
+                    const startRow = startCell.Row;
+                    const startColumn = startCell.Column;
+                    
+                    // 遍历所有选中的图片，依次向下单元格添加批注
+                    for (let i = 0; i < selectedImages.length; i++) {
+                        // 计算当前单元格的行列
+                        const currentRow = startRow + i;
+                        const currentColumn = startColumn;
+                        
+                        // 获取当前单元格
+                        const currentCell = activeSheet.Cells.Item(currentRow, currentColumn);
+                        if (!currentCell) {
+                            throw new Error(`无法获取单元格: 行${currentRow}，列${currentColumn}`);
+                        }
+                        
+                        // 1. 先删除单元格现有的批注（如果有）
+                        if (currentCell.Comment) {
+                            currentCell.Comment.Delete();
+                        }
+                        
+                        // 2. 为单元格添加新批注
+                        currentCell.AddComment("");
+                        
+                        // 3. 获取批注对象
+                        const comment = currentCell.Comment;
+                        if (!comment) {
+                            throw new Error(`无法为单元格添加批注: 行${currentRow}，列${currentColumn}`);
+                        }
+                        
+                        // 4. 在批注中插入图片
+                        const commentShape = comment.Shape;
+                        if (!commentShape) {
+                            throw new Error(`无法获取批注Shape对象: 行${currentRow}，列${currentColumn}`);
+                        }
+                        
+                        // 调整批注大小
+                        commentShape.Width = 680;
+                        commentShape.Height = 420;
+                        
+                        // 5. 在批注中添加图片
+                        const selectedImage = selectedImages[i];
+
+                        // 使用AddPicture方法在批注中插入图片
+                        const shapes = commentShape.Shapes;
+                        if (shapes && typeof shapes.AddPicture === 'function') {
+                            shapes.AddPicture(
+                                selectedImage,
+                                false,
+                                true,
+                                0,
+                                0,
+                                commentShape.Width,
+                                commentShape.Height
+                            );
+                            console.log(`图片已添加到批注中: 行${currentRow}，列${currentColumn}`);
+                        } else if (commentShape.Fill && typeof commentShape.Fill.UserPicture === 'function') {
+                            // 备选方案：使用Fill.UserPicture方法填充批注背景
+                            commentShape.Fill.UserPicture(selectedImage);
+                            console.log(`图片已作为背景添加到批注中: 行${currentRow}，列${currentColumn}`);
+                        } else {
+                            throw new Error(`当前WPS版本不支持在批注中插入图片: 行${currentRow}，列${currentColumn}`);
+                        }
+                    }
+                    
+                    console.log(`成功为 ${selectedImages.length} 个单元格添加了批注图片！`);
                     console.log("添加批注功能执行完成");
                     
                 } catch (error) {
@@ -461,6 +456,36 @@ function OnAction(control) {
                     // 动态时间功能：在选中单元格生成每秒跳动的动态时间，再次点击则删除
                     try {
                         console.log('点击动态时间按钮');
+                        // 内部辅助函数
+                        const updateClockCell = function(clockConfig) {
+                            try {
+                                // 检查Workbook对象是否有效
+                                if (!clockConfig.workbook) return;
+                                
+                                // 尝试访问Workbook的属性，检查是否有效
+                                clockConfig.workbook.Name;
+                                
+                                // Workbook有效，执行更新
+                                const sheet = clockConfig.workbook.Sheets.Item(clockConfig.sheetName);
+                                const range = sheet.Range(clockConfig.address);
+                                // 尝试使用Value2设置值
+                                const timeString = getNowTimeString();
+                                range.Value2 = timeString;
+                                
+                                // 设置单元格格式
+                                range.NumberFormatLocal = "yyyy/m/d hh:mm:ss";
+                            } catch (workbookError) {
+                                // Workbook对象失效，清除定时器
+                                clearInterval(clockConfig.intervalId);
+                                // 从数组中删除
+                                if (window.dynamicTimeClocks) {
+                                    const index = window.dynamicTimeClocks.indexOf(clockConfig);
+                                    if (index > -1) {
+                                        window.dynamicTimeClocks.splice(index, 1);
+                                    }
+                                }
+                            }
+                        };
                         // 检查WPS应用环境
                         if (!window.Application) {
                             throw new Error("无法访问WPS应用对象");
@@ -492,11 +517,11 @@ function OnAction(control) {
                         const sheetName = window.Application.ActiveSheet.Name;
                         const workbook = window.Application.ActiveWorkbook;
                         const workbookName = workbook.Name;
-                        const workbookFullName = workbook.FullName;
+                        const workbookFullPath = workbook.FullName;
                         
                         console.log('单元格信息:', {
                             workbook: workbookName,
-                            workbookFullPath: workbookFullName,
+                            workbookFullPath: workbookFullPath,
                             sheet: sheetName,
                             cell: cellAddress
                         });
@@ -509,8 +534,9 @@ function OnAction(control) {
                         
                         // 检查是否已经存在相同的动态时钟
                         let foundClockIndex = -1;
-                        const targetHash = generateClockHash(workbookFullName, sheetName, cellAddress);
+                        const targetHash = generateClockHash(workbookFullPath, sheetName, cellAddress);
                         console.log('目标时钟hash:', targetHash);
+                        
                         for (let i = 0; i < window.dynamicTimeClocks.length; i++) {
                             const existingClock = window.dynamicTimeClocks[i];
                             const existingHash = generateClockHash(
@@ -531,7 +557,7 @@ function OnAction(control) {
                                 break;
                             }
                         }
-                        
+
                         if (foundClockIndex > -1) {
                             // 找到匹配的动态时钟，执行删除操作
                             const clockToDelete = window.dynamicTimeClocks[foundClockIndex];
@@ -571,9 +597,9 @@ function OnAction(control) {
                                     });
                                 }
                                 // 合并配置：保留其他工作簿的配置，只更新当前工作簿的配置
-                            const mergedConfigs = allConfigs.filter(config => 
-                                config.workbookFullName !== workbook.FullName
-                            ).concat(currentConfigs);
+                                const mergedConfigs = allConfigs.filter(config => 
+                                    config.workbookFullName !== workbook.FullName
+                                ).concat(currentConfigs);
                                 // 保存到localStorage
                                 saveDynamicTimeConfig(mergedConfigs);
                             } catch (e) {
@@ -590,44 +616,44 @@ function OnAction(control) {
                                 address: cellAddress,
                                 sheetName: sheetName,
                                 workbook: workbook,
-                                intervalId: null
+                                intervalId: null,
+                                formatSet: false
                             };
                             
                             // 为当前单元格创建定时器
                             clockConfig.intervalId = setInterval(function() {
-                                // 获取当前时间字符串
-                                const timeString = getNowTimeString();
-                                
-                                // 更新单元格
                                 try {
                                     // 检查Workbook对象是否有效
-                                    if (clockConfig.workbook) {
-                                        try {
-                                            // 尝试访问Workbook的属性，检查是否有效
-                                            const workbookName = clockConfig.workbook.Name;
-                                            
-                                            // Workbook有效，执行更新
-                                            const sheet = clockConfig.workbook.Sheets.Item(clockConfig.sheetName);
-                                            const range = sheet.Range(clockConfig.address);
-                                            // 尝试使用Value2设置值
-                                            range.Value2 = timeString;
-                                            
-                                            // 设置单元格格式
-                                            range.NumberFormatLocal = "yyyy/m/d hh:mm:ss";
-                                        } catch (workbookError) {
-                                            // Workbook对象失效，清除定时器
-                                            clearInterval(clockConfig.intervalId);
-                                            // 从数组中删除
-                                            if (window.dynamicTimeClocks) {
-                                                const index = window.dynamicTimeClocks.indexOf(clockConfig);
-                                                if (index > -1) {
-                                                    window.dynamicTimeClocks.splice(index, 1);
-                                                }
-                                            }
+                                    if (!clockConfig.workbook) return;
+                                    
+                                    // 尝试访问Workbook的属性，检查是否有效
+                                    clockConfig.workbook.Name;
+                                    
+                                    // Workbook有效，执行更新
+                                    const sheet = clockConfig.workbook.Sheets.Item(clockConfig.sheetName);
+                                    const range = sheet.Range(clockConfig.address);
+                                    const timeString = getNowTimeString();
+                                    
+                                    // 只在值发生变化时更新，减少对撤回栈的影响
+                                    if (range.Value2 !== timeString) {
+                                        range.Value2 = timeString;
+                                    }
+                                    
+                                    // 只在第一次设置格式，避免重复操作影响撤回栈
+                                    if (!clockConfig.formatSet) {
+                                        range.NumberFormatLocal = "yyyy/mm/dd hh:mm:ss";
+                                        clockConfig.formatSet = true;
+                                    }
+                                } catch (workbookError) {
+                                    // Workbook对象失效，清除定时器
+                                    clearInterval(clockConfig.intervalId);
+                                    // 从数组中删除
+                                    if (window.dynamicTimeClocks) {
+                                        const index = window.dynamicTimeClocks.indexOf(clockConfig);
+                                        if (index > -1) {
+                                            window.dynamicTimeClocks.splice(index, 1);
                                         }
                                     }
-                                } catch (e) {
-                                    // 静默处理错误
                                 }
                             }, 1000); // 每秒执行一次
                             
@@ -655,7 +681,7 @@ function OnAction(control) {
                                 }
                                 // 合并配置：保留其他工作簿的配置，只更新当前工作簿的配置
                                 const mergedConfigs = allConfigs.filter(config => 
-                                    config.workbookFullName !== workbookFullName
+                                    config.workbookFullName !== workbookFullPath
                                 ).concat(currentConfigs);
                                 // 保存到localStorage
                                 saveDynamicTimeConfig(mergedConfigs);
@@ -761,7 +787,7 @@ function insertImagesToExcel(imageFiles) {
         // 选中起始单元格，方便用户查看结果
         app.ActiveSheet.Cells.Item(startRow, startColumn).Select();
         
-        alert(`成功嵌入 ${imageFiles.length} 个图片到Excel表格中`);
+        console.log(`成功嵌入 ${imageFiles.length} 个图片到Excel表格中`);
     } catch (error) {
         console.error("嵌入图片到Excel失败:", error);
         console.error("错误堆栈:", error.stack);
@@ -834,8 +860,8 @@ function OnGetTabVisible(control) {
 function getNowTimeString() {
     const now = new Date();
     const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const day = now.getDate();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const seconds = now.getSeconds().toString().padStart(2, '0');

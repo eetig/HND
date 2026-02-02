@@ -13,6 +13,8 @@
                 <button id="btnDynamicTime" label="动态时间" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
                 <!-- 科学计算器按钮 -->
                 <button id="btnScientificCalculator" label="科学计算器" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
+                <!-- 汇率换算按钮 -->
+                <button id="btnCurrencyConverter" label="汇率换算" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
 
                 </group>
             </tab>

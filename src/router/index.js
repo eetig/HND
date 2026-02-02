@@ -33,6 +33,11 @@ const router = createRouter({
       path: '/calculator',
       name: '科学计算器',
       component: () => import('../components/ScientificCalculatorTaskPane.vue')
+    },
+    {
+      path: '/currency',
+      name: '汇率换算',
+      component: () => import('../components/CurrencyConverterTaskPane.vue')
     }
   ]
 })

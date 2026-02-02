@@ -407,87 +407,8 @@ function OnAction(control) {
                 break
             case "btnMaterialQuery":
                 {
-                    // 物料查询功能：切换物料查询TaskPane的显示/隐藏
-                    try {
-                        console.log("开始执行物料查询功能");
-                        
-                        // 检查WPS应用环境
-                        if (!window.Application) {
-                            throw new Error("无法访问WPS应用对象");
-                        }
-                        
-                        // 1. 检查其他窗格是否开启，如果开启，则关闭
-                        // 关闭科学计算器任务窗格
-                        let calculatorTaskPaneId = window.Application.PluginStorage.getItem("scientific_calculator_taskpane_id");
-                        if (calculatorTaskPaneId) {
-                            try {
-                                let calculatorTskpane = window.Application.GetTaskPane(calculatorTaskPaneId);
-                                if (calculatorTskpane && calculatorTskpane.Visible) {
-                                    calculatorTskpane.Visible = false;
-                                    console.log("隐藏科学计算器任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取科学计算器任务窗格");
-                            }
-                        }
-                        
-                        // 关闭汇率换算任务窗格
-                        let currencyTaskPaneId = window.Application.PluginStorage.getItem("currency_converter_taskpane_id");
-                        if (currencyTaskPaneId) {
-                            try {
-                                let currencyTskpane = window.Application.GetTaskPane(currencyTaskPaneId);
-                                if (currencyTskpane && currencyTskpane.Visible) {
-                                    currencyTskpane.Visible = false;
-                                    console.log("隐藏汇率换算任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取汇率换算任务窗格");
-                            }
-                        }
-                        
-                        // 2. 检查当前窗格是否开启，如果开启，则关闭，如果未开启，则开启
-                        let taskPaneId = window.Application.PluginStorage.getItem("material_query_taskpane_id");
-                        let tskpane = null;
-                        let isVisible = false;
-                        
-                        if (taskPaneId) {
-                            try {
-                                tskpane = window.Application.GetTaskPane(taskPaneId);
-                                isVisible = tskpane && tskpane.Visible;
-                            } catch (e) {
-                                console.log("无法获取已存在的任务窗格");
-                                tskpane = null;
-                                isVisible = false;
-                            }
-                        }
-                        
-                        if (isVisible) {
-                            // 当前窗格已开启，关闭它
-                            tskpane.Visible = false;
-                            console.log("关闭物料查询任务窗格");
-                        } else {
-                            // 当前窗格未开启，开启它
-                            if (tskpane) {
-                                // 任务窗格存在但不可见，直接显示
-                                tskpane.Visible = true;
-                                console.log("显示物料查询任务窗格");
-                            } else {
-                                // 任务窗格不存在，创建新的
-                                let baseUrl = window.location.href;
-                                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, 'index.html#/materialquery');
-                                tskpane = window.Application.CreateTaskPane(taskPaneUrl);
-                                let id = tskpane.ID;
-                                window.Application.PluginStorage.setItem("material_query_taskpane_id", id);
-                                tskpane.Visible = true;
-                                console.log("创建并显示物料查询任务窗格，ID:", id);
-                            }
-                        }
-                        
-                    } catch (error) {
-                        console.error("物料查询功能失败:", error);
-                        console.error("错误堆栈:", error.stack);
-                        alert(`物料查询功能失败:\n详细错误: ${error.message}`);
-                    }
+                    // 物料查询功能：使用统一管理函数
+                    manageTaskPane("btnMaterialQuery");
                 }
                 break
 
@@ -741,273 +662,22 @@ function OnAction(control) {
 
             case "btnScientificCalculator":
                 {
-                    // 科学计算器功能：切换科学计算器TaskPane的显示/隐藏
-                    try {
-                        console.log("开始执行科学计算器功能");
-                        
-                        // 检查WPS应用环境
-                        if (!window.Application) {
-                            throw new Error("无法访问WPS应用对象");
-                        }
-                        
-                        // 1. 检查其他窗格是否开启，如果开启，则关闭
-                        // 关闭物料查询任务窗格
-                        let materialTaskPaneId = window.Application.PluginStorage.getItem("material_query_taskpane_id");
-                        if (materialTaskPaneId) {
-                            try {
-                                let materialTskpane = window.Application.GetTaskPane(materialTaskPaneId);
-                                if (materialTskpane && materialTskpane.Visible) {
-                                    materialTskpane.Visible = false;
-                                    console.log("隐藏物料查询任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取物料查询任务窗格");
-                            }
-                        }
-                        
-                        // 关闭汇率换算任务窗格
-                        let currencyTaskPaneId = window.Application.PluginStorage.getItem("currency_converter_taskpane_id");
-                        if (currencyTaskPaneId) {
-                            try {
-                                let currencyTskpane = window.Application.GetTaskPane(currencyTaskPaneId);
-                                if (currencyTskpane && currencyTskpane.Visible) {
-                                    currencyTskpane.Visible = false;
-                                    console.log("隐藏汇率换算任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取汇率换算任务窗格");
-                            }
-                        }
-                        
-                        // 2. 检查当前窗格是否开启，如果开启，则关闭，如果未开启，则开启
-                        let taskPaneId = window.Application.PluginStorage.getItem("scientific_calculator_taskpane_id");
-                        let tskpane = null;
-                        let isVisible = false;
-                        
-                        if (taskPaneId) {
-                            try {
-                                tskpane = window.Application.GetTaskPane(taskPaneId);
-                                isVisible = tskpane && tskpane.Visible;
-                            } catch (e) {
-                                console.log("无法获取已存在的任务窗格");
-                                tskpane = null;
-                                isVisible = false;
-                            }
-                        }
-                        
-                        if (isVisible) {
-                            // 当前窗格已开启，关闭它
-                            tskpane.Visible = false;
-                            console.log("关闭科学计算器任务窗格");
-                        } else {
-                            // 当前窗格未开启，开启它
-                            if (tskpane) {
-                                // 任务窗格存在但不可见，直接显示
-                                tskpane.Visible = true;
-                                console.log("显示科学计算器任务窗格");
-                            } else {
-                                // 任务窗格不存在，创建新的
-                                let baseUrl = window.location.href;
-                                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, 'index.html#/calculator');
-                                tskpane = window.Application.CreateTaskPane(taskPaneUrl);
-                                let id = tskpane.ID;
-                                window.Application.PluginStorage.setItem("scientific_calculator_taskpane_id", id);
-                                tskpane.Visible = true;
-                                console.log("创建并显示科学计算器任务窗格，ID:", id);
-                            }
-                        }
-                        
-                    } catch (error) {
-                        console.error("科学计算器功能失败:", error);
-                        console.error("错误堆栈:", error.stack);
-                        alert(`科学计算器功能失败:\n详细错误: ${error.message}`);
-                    }
+                    // 科学计算器功能：使用统一管理函数
+                    manageTaskPane("btnScientificCalculator");
                 }
                 break
 
             case "btnCurrencyConverter":
                 {
-                    // 汇率换算功能：切换汇率换算TaskPane的显示/隐藏
-                    try {
-                        console.log("开始执行汇率换算功能");
-                        
-                        // 检查WPS应用环境
-                        if (!window.Application) {
-                            throw new Error("无法访问WPS应用对象");
-                        }
-                        
-                        // 1. 检查其他窗格是否开启，如果开启，则关闭
-                        // 关闭物料查询任务窗格
-                        let materialTaskPaneId = window.Application.PluginStorage.getItem("material_query_taskpane_id");
-                        if (materialTaskPaneId) {
-                            try {
-                                let materialTskpane = window.Application.GetTaskPane(materialTaskPaneId);
-                                if (materialTskpane && materialTskpane.Visible) {
-                                    materialTskpane.Visible = false;
-                                    console.log("隐藏物料查询任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取物料查询任务窗格");
-                            }
-                        }
-                        
-                        // 关闭科学计算器任务窗格
-                        let calculatorTaskPaneId = window.Application.PluginStorage.getItem("scientific_calculator_taskpane_id");
-                        if (calculatorTaskPaneId) {
-                            try {
-                                let calculatorTskpane = window.Application.GetTaskPane(calculatorTaskPaneId);
-                                if (calculatorTskpane && calculatorTskpane.Visible) {
-                                    calculatorTskpane.Visible = false;
-                                    console.log("隐藏科学计算器任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取科学计算器任务窗格");
-                            }
-                        }
-                        
-                        // 2. 检查当前窗格是否开启，如果开启，则关闭，如果未开启，则开启
-                        let taskPaneId = window.Application.PluginStorage.getItem("currency_converter_taskpane_id");
-                        let tskpane = null;
-                        let isVisible = false;
-                        
-                        if (taskPaneId) {
-                            try {
-                                tskpane = window.Application.GetTaskPane(taskPaneId);
-                                isVisible = tskpane && tskpane.Visible;
-                            } catch (e) {
-                                console.log("无法获取已存在的任务窗格");
-                                tskpane = null;
-                                isVisible = false;
-                            }
-                        }
-                        
-                        if (isVisible) {
-                            // 当前窗格已开启，关闭它
-                            tskpane.Visible = false;
-                            console.log("关闭汇率换算任务窗格");
-                        } else {
-                            // 当前窗格未开启，开启它
-                            if (tskpane) {
-                                // 任务窗格存在但不可见，直接显示
-                                tskpane.Visible = true;
-                                console.log("显示汇率换算任务窗格");
-                            } else {
-                                // 任务窗格不存在，创建新的
-                                let baseUrl = window.location.href;
-                                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, 'index.html#/currency');
-                                tskpane = window.Application.CreateTaskPane(taskPaneUrl);
-                                let id = tskpane.ID;
-                                window.Application.PluginStorage.setItem("currency_converter_taskpane_id", id);
-                                tskpane.Visible = true;
-                                console.log("创建并显示汇率换算任务窗格，ID:", id);
-                            }
-                        }
-                        
-                    } catch (error) {
-                        console.error("汇率换算功能失败:", error);
-                        console.error("错误堆栈:", error.stack);
-                        alert(`汇率换算功能失败:\n详细错误: ${error.message}`);
-                    }
+                    // 汇率换算功能：使用统一管理函数
+                    manageTaskPane("btnCurrencyConverter");
                 }
                 break
                 
             case "btnTankVolume":
                 {
-                    // 储罐容积计算功能：切换储罐容积计算TaskPane的显示/隐藏
-                    try {
-                        console.log("开始执行储罐容积计算功能");
-                        
-                        // 检查WPS应用环境
-                        if (!window.Application) {
-                            throw new Error("无法访问WPS应用对象");
-                        }
-                        
-                        // 1. 检查其他窗格是否开启，如果开启，则关闭
-                        // 关闭物料查询任务窗格
-                        let materialTaskPaneId = window.Application.PluginStorage.getItem("material_query_taskpane_id");
-                        if (materialTaskPaneId) {
-                            try {
-                                let materialTskpane = window.Application.GetTaskPane(materialTaskPaneId);
-                                if (materialTskpane && materialTskpane.Visible) {
-                                    materialTskpane.Visible = false;
-                                    console.log("隐藏物料查询任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取物料查询任务窗格");
-                            }
-                        }
-                        
-                        // 关闭科学计算器任务窗格
-                        let calculatorTaskPaneId = window.Application.PluginStorage.getItem("scientific_calculator_taskpane_id");
-                        if (calculatorTaskPaneId) {
-                            try {
-                                let calculatorTskpane = window.Application.GetTaskPane(calculatorTaskPaneId);
-                                if (calculatorTskpane && calculatorTskpane.Visible) {
-                                    calculatorTskpane.Visible = false;
-                                    console.log("隐藏科学计算器任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取科学计算器任务窗格");
-                            }
-                        }
-                        
-                        // 关闭汇率换算任务窗格
-                        let currencyTaskPaneId = window.Application.PluginStorage.getItem("currency_converter_taskpane_id");
-                        if (currencyTaskPaneId) {
-                            try {
-                                let currencyTskpane = window.Application.GetTaskPane(currencyTaskPaneId);
-                                if (currencyTskpane && currencyTskpane.Visible) {
-                                    currencyTskpane.Visible = false;
-                                    console.log("隐藏汇率换算任务窗格");
-                                }
-                            } catch (e) {
-                                console.log("无法获取汇率换算任务窗格");
-                            }
-                        }
-                        
-                        // 2. 检查当前窗格是否开启，如果开启，则关闭，如果未开启，则开启
-                        let taskPaneId = window.Application.PluginStorage.getItem("tank_volume_taskpane_id");
-                        let tskpane = null;
-                        let isVisible = false;
-                        
-                        if (taskPaneId) {
-                            try {
-                                tskpane = window.Application.GetTaskPane(taskPaneId);
-                                isVisible = tskpane && tskpane.Visible;
-                            } catch (e) {
-                                console.log("无法获取已存在的任务窗格");
-                                tskpane = null;
-                                isVisible = false;
-                            }
-                        }
-                        
-                        if (isVisible) {
-                            // 当前窗格已开启，关闭它
-                            tskpane.Visible = false;
-                            console.log("关闭储罐容积计算任务窗格");
-                        } else {
-                            // 当前窗格未开启，开启它
-                            if (tskpane) {
-                                // 任务窗格存在但不可见，直接显示
-                                tskpane.Visible = true;
-                                console.log("显示储罐容积计算任务窗格");
-                            } else {
-                                // 任务窗格不存在，创建新的
-                                let baseUrl = window.location.href;
-                                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, 'index.html#/tank-volume');
-                                tskpane = window.Application.CreateTaskPane(taskPaneUrl);
-                                let id = tskpane.ID;
-                                window.Application.PluginStorage.setItem("tank_volume_taskpane_id", id);
-                                tskpane.Visible = true;
-                                console.log("创建并显示储罐容积计算任务窗格，ID:", id);
-                            }
-                        }
-                        
-                    } catch (error) {
-                        console.error("储罐容积计算功能失败:", error);
-                        console.error("错误堆栈:", error.stack);
-                        alert(`储罐容积计算功能失败:\n详细错误: ${error.message}`);
-                    }
+                    // 储罐容积计算功能：使用统一管理函数
+                    manageTaskPane("btnTankVolume");
                 }
                 break
 
@@ -1228,38 +898,113 @@ function getNowTimeString() {
 // 确保函数在全局作用域中可用
 window.getNowTimeString = getNowTimeString;
 
-// 关闭其他任务窗格的函数
-function closeOtherTaskPanes(excludeIds) {
+// 任务窗格配置信息
+const taskPaneConfigs = [
+    {
+        id: "material_query_taskpane_id",
+        key: "btnMaterialQuery",
+        url: "index.html#/materialquery",
+        name: "物料查询"
+    },
+    {
+        id: "scientific_calculator_taskpane_id",
+        key: "btnScientificCalculator",
+        url: "index.html#/calculator",
+        name: "科学计算器"
+    },
+    {
+        id: "currency_converter_taskpane_id",
+        key: "btnCurrencyConverter",
+        url: "index.html#/currency",
+        name: "汇率换算"
+    },
+    {
+        id: "tank_volume_taskpane_id",
+        key: "btnTankVolume",
+        url: "index.html#/tank-volume",
+        name: "储罐容积计算"
+    }
+];
+
+// 统一管理任务窗格的函数
+function manageTaskPane(buttonKey) {
     try {
-        if (!window.Application) return;
+        if (!window.Application) {
+            throw new Error("无法访问WPS应用对象");
+        }
         
-        // 所有任务窗格的ID
-        const allTaskPaneIds = [
-            "material_query_taskpane_id",
-            "scientific_calculator_taskpane_id",
-            "currency_converter_taskpane_id"
-        ];
+        console.log(`开始管理任务窗格: ${buttonKey}`);
         
-        // 遍历并关闭除了指定ID之外的所有任务窗格
-        for (const id of allTaskPaneIds) {
-            if (excludeIds && excludeIds.includes(id)) continue;
+        // 找到当前按钮对应的任务窗格配置
+        const currentConfig = taskPaneConfigs.find(config => config.key === buttonKey);
+        if (!currentConfig) {
+            console.error(`未找到任务窗格配置: ${buttonKey}`);
+            return;
+        }
+        
+        // 1. 检查其他窗格是否开启，如果开启，则关闭
+        console.log("关闭其他任务窗格");
+        for (const config of taskPaneConfigs) {
+            if (config.key === buttonKey) continue; // 跳过当前任务窗格
             
-            const taskPaneId = window.Application.PluginStorage.getItem(id);
+            const taskPaneId = window.Application.PluginStorage.getItem(config.id);
             if (taskPaneId) {
                 try {
                     const tskpane = window.Application.GetTaskPane(taskPaneId);
                     if (tskpane && tskpane.Visible) {
                         tskpane.Visible = false;
-                        console.log("关闭任务窗格，ID:", taskPaneId);
+                        console.log(`隐藏任务窗格: ${config.name}`);
                     }
                 } catch (e) {
-                    // 任务窗格可能不存在，忽略错误
-                    console.log("无法关闭任务窗格，ID:", taskPaneId, "错误:", e.message);
+                    console.log(`无法获取任务窗格: ${config.name}`);
                 }
             }
         }
-    } catch (e) {
-        console.error("关闭其他任务窗格失败:", e);
+        
+        // 2. 检查当前窗格是否开启，如果开启，则关闭，如果未开启，则开启
+        console.log(`检查当前任务窗格状态: ${currentConfig.name}`);
+        const currentTaskPaneId = window.Application.PluginStorage.getItem(currentConfig.id);
+        let tskpane = null;
+        let isVisible = false;
+        
+        if (currentTaskPaneId) {
+            try {
+                tskpane = window.Application.GetTaskPane(currentTaskPaneId);
+                isVisible = tskpane && tskpane.Visible;
+                console.log(`当前任务窗格状态: ${isVisible ? "开启" : "关闭"}`);
+            } catch (e) {
+                console.log(`无法获取已存在的任务窗格: ${currentConfig.name}`);
+                tskpane = null;
+                isVisible = false;
+            }
+        }
+        
+        if (isVisible) {
+            // 当前窗格已开启，关闭它
+            tskpane.Visible = false;
+            console.log(`关闭任务窗格: ${currentConfig.name}`);
+        } else {
+            // 当前窗格未开启，开启它
+            if (tskpane) {
+                // 任务窗格存在但不可见，直接显示
+                tskpane.Visible = true;
+                console.log(`显示任务窗格: ${currentConfig.name}`);
+            } else {
+                // 任务窗格不存在，创建新的
+                let baseUrl = window.location.href;
+                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, currentConfig.url);
+                tskpane = window.Application.CreateTaskPane(taskPaneUrl);
+                let id = tskpane.ID;
+                window.Application.PluginStorage.setItem(currentConfig.id, id);
+                tskpane.Visible = true;
+                console.log(`创建并显示任务窗格: ${currentConfig.name}, ID: ${id}`);
+            }
+        }
+        
+    } catch (error) {
+        console.error("管理任务窗格失败:", error);
+        console.error("错误堆栈:", error.stack);
+        alert(`管理任务窗格失败:\n详细错误: ${error.message}`);
     }
 }
 

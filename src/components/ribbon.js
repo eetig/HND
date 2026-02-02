@@ -142,13 +142,20 @@ function OnAddinLoad(ribbonUI){
     function restoreDynamicTimeClocks() {
         try {
             const savedConfigs = loadDynamicTimeConfig();
-            if (savedConfigs.length === 0) return;
+            if (savedConfigs.length === 0) {
+                console.log('没有保存的动态时钟配置');
+                return;
+            }
             
             // 获取当前工作簿
             const currentWorkbook = window.Application.ActiveWorkbook;
-            if (!currentWorkbook) return;
+            if (!currentWorkbook) {
+                console.log('没有活动工作簿');
+                return;
+            }
             
             const currentWorkbookFullName = currentWorkbook.FullName;
+            let restoredCount = 0;
             
             // 检查是否有匹配当前工作簿的配置
             for (const config of savedConfigs) {
@@ -165,9 +172,12 @@ function OnAddinLoad(ribbonUI){
                     sheet: config.sheetName,
                     cell: config.address
                 });
+                restoredCount++;
             }
+            
+            console.log(`共恢复了 ${restoredCount} 个动态时钟`);
         } catch (e) {
-            // 静默处理错误
+            console.error('恢复动态时钟失败:', e);
         }
     }
 
@@ -602,6 +612,7 @@ function OnAction(control) {
                                 ).concat(currentConfigs);
                                 // 保存到localStorage
                                 saveDynamicTimeConfig(mergedConfigs);
+                                console.log('配置已更新:', mergedConfigs);
                             } catch (e) {
                                 console.error('保存配置失败:', e);
                             }
@@ -703,6 +714,35 @@ function OnAction(control) {
     }
     return true
 }
+
+// 完全清除所有动态时钟配置的函数
+function clearAllDynamicTimeClocks() {
+    try {
+        // 清除所有定时器
+        if (window.dynamicTimeClocks) {
+            for (const clock of window.dynamicTimeClocks) {
+                if (clock.intervalId) {
+                    clearInterval(clock.intervalId);
+                    console.log('定时器已清除:', clock.address);
+                }
+            }
+            // 清空动态时钟数组
+            window.dynamicTimeClocks = [];
+            console.log('动态时钟数组已清空');
+        }
+        
+        // 清空localStorage中的配置
+        localStorage.removeItem('hnd_dynamic_time_configs');
+        console.log('localStorage中的动态时钟配置已清空');
+        
+        console.log('所有动态时钟配置已完全清除');
+    } catch (e) {
+        console.error('清除动态时钟配置失败:', e);
+    }
+}
+
+// 确保函数在全局作用域中可用
+window.clearAllDynamicTimeClocks = clearAllDynamicTimeClocks;
 
 
 

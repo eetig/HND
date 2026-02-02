@@ -28,6 +28,11 @@ const router = createRouter({
       path: '/materialquery',
       name: '物料查询',
       component: () => import('../components/MaterialQueryTaskPane.vue')
+    },
+    {
+      path: '/calculator',
+      name: '科学计算器',
+      component: () => import('../components/ScientificCalculatorTaskPane.vue')
     }
   ]
 })

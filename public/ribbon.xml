@@ -11,6 +11,8 @@
                 <button id="btnMaterialQuery" label="物料查询" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
                 <!-- 动态时间按钮 -->
                 <button id="btnDynamicTime" label="动态时间" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
+                <!-- 科学计算器按钮 -->
+                <button id="btnScientificCalculator" label="科学计算器" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
 
                 </group>
             </tab>

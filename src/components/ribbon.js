@@ -709,6 +709,62 @@ function OnAction(control) {
                 }
                 break
 
+            case "btnScientificCalculator":
+                {
+                    // 科学计算器功能：切换科学计算器TaskPane的显示/隐藏
+                    try {
+                        console.log("开始执行科学计算器功能");
+                        
+                        // 检查WPS应用环境
+                        if (!window.Application) {
+                            throw new Error("无法访问WPS应用对象");
+                        }
+                        
+                        // 检查是否已存在任务窗格
+                        let taskPaneId = window.Application.PluginStorage.getItem("scientific_calculator_taskpane_id");
+                        let tskpane = null;
+                        
+                        if (taskPaneId) {
+                            // 尝试获取已存在的任务窗格
+                            try {
+                                tskpane = window.Application.GetTaskPane(taskPaneId);
+                            } catch (e) {
+                                console.log("无法获取已存在的任务窗格，将创建新的任务窗格");
+                                tskpane = null;
+                            }
+                        }
+                        
+                        if (tskpane && tskpane.Visible) {
+                            // 如果任务窗格存在且可见，则隐藏它
+                            tskpane.Visible = false;
+                            console.log("隐藏任务窗格，ID:", taskPaneId);
+                        } else {
+                            // 如果任务窗格不存在或不可见，则创建或显示它
+                            if (tskpane) {
+                                // 任务窗格存在但不可见，直接显示
+                                tskpane.Visible = true;
+                                console.log("显示已有任务窗格，ID:", taskPaneId);
+                            } else {
+                                // 任务窗格不存在，创建新的
+                                let baseUrl = window.location.href;
+                                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, 'index.html#/calculator');
+                                tskpane = window.Application.CreateTaskPane(taskPaneUrl)
+                                let id = tskpane.ID
+                                window.Application.PluginStorage.setItem("scientific_calculator_taskpane_id", id)
+                                tskpane.Visible = true;
+                                
+                                console.log("创建新TaskPane，ID:", id, "URL:", taskPaneUrl);
+                            }
+                        }
+                        
+                    } catch (error) {
+                        console.error("科学计算器功能失败:", error);
+                        console.error("错误堆栈:", error.stack);
+                        alert(`科学计算器功能失败:\n详细错误: ${error.message}`);
+                    }
+                }
+                break
+
             default:
                 break
     }
@@ -854,6 +910,9 @@ function GetImage(control) {
         case "btnDynamicTime":
             // 使用数字时钟样式的图标
             return "images/digital-clock.svg"
+        case "btnScientificCalculator":
+            // 使用计算器样式的图标
+            return "images/calculator.svg"
 
         default:
             return "images/newFromTemp.svg"
@@ -866,8 +925,8 @@ function OnGetEnabled(control) {
 
 function OnGetVisible(control){
     const eleId = control.Id
-    // 显示"填入图片"、"添加批注"、"物料查询"和"动态时间"按钮
-    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime"
+    // 显示"填入图片"、"添加批注"、"物料查询"、"动态时间"和"科学计算器"按钮
+    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime" || eleId === "btnScientificCalculator"
 }
 
 function OnGetLabel(control){
@@ -881,6 +940,8 @@ function OnGetLabel(control){
             return "物料查询"
         case "btnDynamicTime":
             return "动态时间"
+        case "btnScientificCalculator":
+            return "科学计算器"
 
         default:
             return ""

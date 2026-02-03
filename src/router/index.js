@@ -41,7 +41,7 @@ const router = createRouter({
     },
     {
       path: '/tank-volume',
-      name: '储罐容积计算',
+      name: '液位体积计算',
       component: () => import('../components/TankVolumeCalculatorTaskPane.vue')
     }
   ]

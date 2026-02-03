@@ -1,6 +1,6 @@
 <template>
   <div class="tank-volume-calculator-taskpane">
-    <h2>椭圆封头卧式储罐液位容积计算</h2>
+    <h2>椭圆封头卧式储罐液位体积计算</h2>
     <div class="iframe-container">
       <iframe
         :src="calculatorUrl"

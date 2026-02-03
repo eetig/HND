@@ -812,29 +812,29 @@ function GetImage(control) {
     const eleId = control.Id
     switch (eleId) {
         case "btnFillImage":
-            // 使用images目录下的1.svg作为"填入图片"按钮的图标
-            return "images/1.svg"
+            // 使用images目录下的添加图片.svg作为"填入图片"按钮的图标
+            return "images/添加图片.svg"
         case "btnAddComment":
-            // 使用images目录下的2.svg作为"添加批注"按钮的图标
-            return "images/2.svg"
+            // 使用images目录下的批注、添加批注-copy.svg作为"添加批注"按钮的图标
+            return "images/批注、添加批注-copy.svg"
         case "btnMaterialQuery":
-            // 使用images目录下的search.svg作为"物料查询"按钮的图标
-            return "images/search.svg"
+            // 使用images目录下的查询.svg作为"物料查询"按钮的图标
+            return "images/查询.svg"
         case "btnFuzzySearch":
-            // 使用images目录下的search.svg作为"物料模糊查询"按钮的图标
-            return "images/search.svg"
+            // 使用images目录下的查询.svg作为"物料模糊查询"按钮的图标
+            return "images/查询.svg"
         case "btnDynamicTime":
             // 使用数字时钟样式的图标
             return "images/digital-clock.svg"
         case "btnScientificCalculator":
             // 使用计算器样式的图标
-            return "images/calculator.svg"
+            return "images/计算器.svg"
         case "btnCurrencyConverter":
             // 使用汇率换算样式的图标
-            return "images/calculator.svg"
+            return "images/汇率.svg"
         case "btnTankVolume":
-            // 使用储罐容积计算样式的图标
-            return "images/calculator.svg"
+            // 使用液位体积计算样式的图标
+            return "images/卧式储罐.svg"
 
         default:
             return "images/newFromTemp.svg"
@@ -867,7 +867,7 @@ function OnGetLabel(control){
         case "btnCurrencyConverter":
             return "汇率换算"
         case "btnTankVolume":
-            return "储罐容积计算"
+            return "液位体积计算"
 
         default:
             return ""
@@ -922,7 +922,7 @@ const taskPaneConfigs = [
         id: "tank_volume_taskpane_id",
         key: "btnTankVolume",
         url: "index.html#/tank-volume",
-        name: "储罐容积计算"
+        name: "液位体积计算"
     }
 ];
 

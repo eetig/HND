@@ -1,4 +1,9 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="14" cy="14" r="8" stroke="#0066CC" stroke-width="2"/>
-  <path d="M20 20L28 28" stroke="#0066CC" stroke-width="2" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- 放大镜 -->
+  <circle cx="12" cy="10" r="5" fill="none" stroke="#333" stroke-width="2" />
+  <path d="M18,16 L12,10" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- 红色M字母 -->
+  <path d="M9,6 L12,14 L15,6" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M12,14 L12,6" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" />
 </svg>

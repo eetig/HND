@@ -1,15 +1,12 @@
 <template>
   <div class="tank-volume-calculator-taskpane">
-    <h2>椭圆封头卧式储罐液位体积计算</h2>
-    <div class="iframe-container">
-      <iframe
-        :src="calculatorUrl"
-        frameborder="0"
-        width="100%"
-        height="600"
-        scrolling="yes"
-      ></iframe>
-    </div>
+    <iframe
+      :src="calculatorUrl"
+      frameborder="0"
+      width="100%"
+      height="750"
+      scrolling="yes"
+    ></iframe>
   </div>
 </template>
 
@@ -25,24 +22,26 @@ export default {
 </script>
 
 <style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .tank-volume-calculator-taskpane {
-  padding: 16px;
-  font-family: Arial, sans-serif;
-}
-
-h2 {
-  color: #333;
-  margin-bottom: 20px;
-  font-size: 18px;
-}
-
-.iframe-container {
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
   overflow: hidden;
 }
 
 iframe {
+  width: 100%;
+  height: 750px;
   border: none;
+  margin: 0;
+  padding: 0;
+  display: block;
 }
 </style>

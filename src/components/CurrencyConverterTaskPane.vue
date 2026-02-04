@@ -2,9 +2,10 @@
   <div class="currency-container">
     <iframe 
       src="https://webfem.com/tools/huilv/" 
-      class="currency-iframe"
       frameborder="0"
-      allowfullscreen
+      width="100%"
+      height="750"
+      scrolling="yes"
     ></iframe>
   </div>
 </template>
@@ -16,23 +17,26 @@ export default {
 </script>
 
 <style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .currency-container {
   width: 100%;
   height: 100%;
+  padding: 0;
+  margin: 0;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
 }
 
-.currency-iframe {
+iframe {
   width: 100%;
-  max-width: 800px;
-  height: 100%;
-  min-height: 600px;
+  height: 750px;
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  padding: 0;
+  display: block;
 }
 </style>

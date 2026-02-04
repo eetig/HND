@@ -33,21 +33,21 @@ function saveDynamicTimeConfig(configs) {
         }
         
         console.log('去重后的配置:', uniqueConfigs);
-        console.log('保存动态时间配置:', uniqueConfigs);
+        console.log('保存当前时间配置:', uniqueConfigs);
         
         // 使用localStorage存储配置
-        localStorage.setItem('hnd_dynamic_time_configs', JSON.stringify(uniqueConfigs));
+        localStorage.setItem('hnd_date_time_configs', JSON.stringify(uniqueConfigs));
         console.log('配置保存成功');
     } catch (e) {
         console.error('保存配置失败:', e);
     }
 }
 
-function loadDynamicTimeConfig() {
+function loadCurrentTimeConfig() {
     try {
-        const configs = localStorage.getItem('hnd_dynamic_time_configs');
+        const configs = localStorage.getItem('hnd_date_time_configs');
         const parsedConfigs = configs ? JSON.parse(configs) : [];
-        console.log('加载动态时间配置:', parsedConfigs);
+        console.log('加载当前时间配置:', parsedConfigs);
         return parsedConfigs;
     } catch (e) {
         console.error('加载配置失败:', e);
@@ -139,11 +139,11 @@ function OnAddinLoad(ribbonUI){
         }
     }
 
-    function restoreDynamicTimeClocks() {
+    function restoreCurrentTimeClocks() {
         try {
-            const savedConfigs = loadDynamicTimeConfig();
+            const savedConfigs = loadCurrentTimeConfig();
             if (savedConfigs.length === 0) {
-                console.log('没有保存的动态时钟配置');
+                console.log('没有保存的当前时间配置');
                 return;
             }
             
@@ -184,7 +184,7 @@ function OnAddinLoad(ribbonUI){
 
 
     // 调用恢复函数
-    restoreDynamicTimeClocks();
+    restoreCurrentTimeClocks();
 
     return true
 }
@@ -414,9 +414,9 @@ function OnAction(control) {
 
             case "btnDynamicTime":
                 {
-                    // 动态时间功能：在选中单元格生成每秒跳动的动态时间，再次点击则删除
+                    // 当前时间功能：在选中单元格生成每秒跳动的当前时间，再次点击则删除
                     try {
-                        console.log('点击动态时间按钮');
+                        console.log('点击当前时间按钮');
                         // 内部辅助函数
                         const updateClockCell = function(clockConfig) {
                             try {
@@ -546,7 +546,7 @@ function OnAction(control) {
                             // 更新保存的配置
                             try {
                                 // 先加载所有已有的配置
-                                const allConfigs = loadDynamicTimeConfig();
+                                const allConfigs = loadCurrentTimeConfig();
                                 // 准备当前工作簿的配置
                                 const currentConfigs = [];
                                 for (const clock of window.dynamicTimeClocks) {
@@ -630,7 +630,7 @@ function OnAction(control) {
                             // 保存配置到localStorage
                             try {
                                 // 先加载所有已有的配置
-                                const allConfigs = loadDynamicTimeConfig();
+                                const allConfigs = loadCurrentTimeConfig();
                                 // 准备当前工作簿的配置
                                 const currentConfigs = [];
                                 for (const clock of window.dynamicTimeClocks) {
@@ -655,7 +655,7 @@ function OnAction(control) {
                         }
                         
                     } catch (error) {
-                        console.error('动态时间功能失败:', error);
+                        console.error('当前时间功能失败:', error);
                     }
                 }
                 break
@@ -680,6 +680,12 @@ function OnAction(control) {
                     manageTaskPane("btnTankVolume");
                 }
                 break
+            case "btnQRCode":
+                {
+                    // 二维码功能：使用统一管理函数
+                    manageTaskPane("btnQRCode");
+                }
+                break
 
             default:
                 break
@@ -687,8 +693,8 @@ function OnAction(control) {
     return true
 }
 
-// 完全清除所有动态时钟配置的函数
-function clearAllDynamicTimeClocks() {
+// 完全清除所有当前时间配置的函数
+function clearAllCurrentTimeClocks() {
     try {
         // 清除所有定时器
         if (window.dynamicTimeClocks) {
@@ -700,21 +706,21 @@ function clearAllDynamicTimeClocks() {
             }
             // 清空动态时钟数组
             window.dynamicTimeClocks = [];
-            console.log('动态时钟数组已清空');
+            console.log('当前时间数组已清空');
         }
         
         // 清空localStorage中的配置
-        localStorage.removeItem('hnd_dynamic_time_configs');
-        console.log('localStorage中的动态时钟配置已清空');
+        localStorage.removeItem('hnd_date_time_configs');
+        console.log('localStorage中的当前时间配置已清空');
         
-        console.log('所有动态时钟配置已完全清除');
+        console.log('所有当前时间配置已完全清除');
     } catch (e) {
-        console.error('清除动态时钟配置失败:', e);
+        console.error('清除当前时间配置失败:', e);
     }
 }
 
 // 确保函数在全局作用域中可用
-window.clearAllDynamicTimeClocks = clearAllDynamicTimeClocks;
+window.clearAllCurrentTimeClocks = clearAllCurrentTimeClocks;
 
 
 
@@ -812,29 +818,32 @@ function GetImage(control) {
     const eleId = control.Id
     switch (eleId) {
         case "btnFillImage":
-            // 使用images目录下的添加图片.svg作为"填入图片"按钮的图标
-            return "images/添加图片.svg"
+            // 使用images目录下的add-image.svg作为"填入图片"按钮的图标
+            return "images/add-image.svg"
         case "btnAddComment":
-            // 使用images目录下的批注、添加批注-copy.svg作为"添加批注"按钮的图标
-            return "images/批注、添加批注-copy.svg"
+            // 使用images目录下的add-comment.svg作为"添加批注"按钮的图标
+            return "images/add-comment.svg"
         case "btnMaterialQuery":
-            // 使用images目录下的查询.svg作为"物料查询"按钮的图标
-            return "images/查询.svg"
+            // 使用images目录下的query.svg作为"物料查询"按钮的图标
+            return "images/query.svg"
         case "btnFuzzySearch":
-            // 使用images目录下的查询.svg作为"物料模糊查询"按钮的图标
-            return "images/查询.svg"
+            // 使用images目录下的query.svg作为"物料模糊查询"按钮的图标
+            return "images/query.svg"
         case "btnDynamicTime":
-            // 使用数字时钟样式的图标
-            return "images/digital-clock.svg"
+            // 使用日期时间样式的图标
+            return "images/rqsj.svg"
         case "btnScientificCalculator":
             // 使用计算器样式的图标
-            return "images/计算器.svg"
+            return "images/calculator.svg"
         case "btnCurrencyConverter":
             // 使用汇率换算样式的图标
-            return "images/汇率.svg"
+            return "images/exchange-rate.svg"
         case "btnTankVolume":
             // 使用液位体积计算样式的图标
-            return "images/卧式储罐.svg"
+            return "images/horizontal-tank.svg"
+        case "btnQRCode":
+            // 使用二维码样式的图标
+            return "images/ewm.svg"
 
         default:
             return "images/newFromTemp.svg"
@@ -847,8 +856,8 @@ function OnGetEnabled(control) {
 
 function OnGetVisible(control){
     const eleId = control.Id
-    // 显示"填入图片"、"添加批注"、"物料查询"、"动态时间"、"科学计算器"、"汇率换算"和"储罐容积计算"按钮
-    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime" || eleId === "btnScientificCalculator" || eleId === "btnCurrencyConverter" || eleId === "btnTankVolume"
+    // 显示"填入图片"、"添加批注"、"物料查询"、"当前时间"、"科学计算器"、"汇率换算"、"储罐容积计算"和"二维码"按钮
+    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime" || eleId === "btnScientificCalculator" || eleId === "btnCurrencyConverter" || eleId === "btnTankVolume" || eleId === "btnQRCode"
 }
 
 function OnGetLabel(control){
@@ -861,13 +870,15 @@ function OnGetLabel(control){
         case "btnMaterialQuery":
             return "物料查询"
         case "btnDynamicTime":
-            return "动态时间"
+            return "当前时间"
         case "btnScientificCalculator":
             return "科学计算器"
         case "btnCurrencyConverter":
             return "汇率换算"
         case "btnTankVolume":
             return "液位体积计算"
+        case "btnQRCode":
+            return "二维码"
 
         default:
             return ""
@@ -923,6 +934,12 @@ const taskPaneConfigs = [
         key: "btnTankVolume",
         url: "index.html#/tank-volume",
         name: "液位体积计算"
+    },
+    {
+        id: "qrcode_taskpane_id",
+        key: "btnQRCode",
+        url: "index.html#/qrcode",
+        name: "二维码"
     }
 ];
 

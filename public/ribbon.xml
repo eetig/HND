@@ -17,6 +17,8 @@
                 <button id="btnCurrencyConverter" label="汇率换算" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
                 <!-- 储罐容积计算按钮 -->
                 <button id="btnTankVolume" label="储罐容积计算" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
+                <!-- 二维码按钮 -->
+                <button id="btnQRCode" label="二维码" onAction="ribbon.OnAction" enabled="true" getImage="ribbon.GetImage" getVisible="ribbon.OnGetVisible" size="large"/>
 
                 </group>
             </tab>

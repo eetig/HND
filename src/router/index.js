@@ -43,6 +43,11 @@ const router = createRouter({
       path: '/tank-volume',
       name: '液位体积计算',
       component: () => import('../components/TankVolumeCalculatorTaskPane.vue')
+    },
+    {
+      path: '/qrcode',
+      name: '二维码',
+      component: () => import('../components/QRCodeTaskPane.vue')
     }
   ]
 })

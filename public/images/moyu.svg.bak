@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- 鱼的身体 -->
+  <path d="M8,12 C8,9 12,7 16,9 C19,11 19,13 16,15 C12,17 8,15 8,12 Z" fill="#3498db" />
+  <!-- 鱼鳍 -->
+  <path d="M12,7 L10,10 L14,10 Z" fill="#3498db" />
+  <path d="M12,17 L10,14 L14,14 Z" fill="#3498db" />
+  <!-- 鱼尾 -->
+  <path d="M16,9 L20,12 L16,15 Z" fill="#3498db" />
+  <!-- 鱼眼 -->
+  <circle cx="10" cy="12" r="1" fill="white" />
+  <!-- 气泡 -->
+  <circle cx="6" cy="10" r="0.5" fill="white" opacity="0.7" />
+  <circle cx="7" cy="8" r="0.5" fill="white" opacity="0.5" />
+</svg>

@@ -686,6 +686,18 @@ function OnAction(control) {
                     manageTaskPane("btnQRCode");
                 }
                 break
+            case "btnMoyu":
+                {
+                    // 摸鱼功能：使用统一管理函数
+                    manageTaskPane("btnMoyu");
+                }
+                break
+            case "btnTetris":
+                {
+                    // 俄罗斯方块功能：使用统一管理函数
+                    manageTaskPane("btnTetris");
+                }
+                break
 
             default:
                 break
@@ -844,6 +856,12 @@ function GetImage(control) {
         case "btnQRCode":
             // 使用二维码样式的图标
             return "images/ewm.svg"
+        case "btnMoyu":
+            // 使用数独样式的图标
+            return "images/shudu.svg"
+        case "btnTetris":
+            // 使用俄罗斯方块样式的图标
+            return "images/tile.svg"
 
         default:
             return "images/newFromTemp.svg"
@@ -856,8 +874,8 @@ function OnGetEnabled(control) {
 
 function OnGetVisible(control){
     const eleId = control.Id
-    // 显示"填入图片"、"添加批注"、"物料查询"、"当前时间"、"科学计算器"、"汇率换算"、"储罐容积计算"和"二维码"按钮
-    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime" || eleId === "btnScientificCalculator" || eleId === "btnCurrencyConverter" || eleId === "btnTankVolume" || eleId === "btnQRCode"
+    // 显示"填入图片"、"添加批注"、"物料查询"、"当前时间"、"科学计算器"、"汇率换算"、"储罐容积计算"、"二维码"、"数独"和"俄罗斯方块"按钮
+    return eleId === "btnFillImage" || eleId === "btnAddComment" || eleId === "btnMaterialQuery" || eleId === "btnDynamicTime" || eleId === "btnScientificCalculator" || eleId === "btnCurrencyConverter" || eleId === "btnTankVolume" || eleId === "btnQRCode" || eleId === "btnMoyu" || eleId === "btnTetris"
 }
 
 function OnGetLabel(control){
@@ -879,6 +897,10 @@ function OnGetLabel(control){
             return "液位体积计算"
         case "btnQRCode":
             return "二维码"
+        case "btnMoyu":
+            return "数独"
+        case "btnTetris":
+            return "俄罗斯方块"
 
         default:
             return ""
@@ -940,6 +962,18 @@ const taskPaneConfigs = [
         key: "btnQRCode",
         url: "index.html#/qrcode",
         name: "二维码"
+    },
+    {
+        id: "moyu_taskpane_id",
+        key: "btnMoyu",
+        url: "index.html#/moyu",
+        name: "数独"
+    },
+    {
+        id: "tetris_taskpane_id",
+        key: "btnTetris",
+        url: "index.html#/tetris",
+        name: "俄罗斯方块"
     }
 ];
 

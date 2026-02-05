@@ -48,6 +48,16 @@ const router = createRouter({
       path: '/qrcode',
       name: '二维码',
       component: () => import('../components/QRCodeTaskPane.vue')
+    },
+    {
+      path: '/moyu',
+      name: '摸鱼',
+      component: () => import('../components/MoyuTaskPane.vue')
+    },
+    {
+      path: '/tetris',
+      name: '俄罗斯方块',
+      component: () => import('../components/TetrisTaskPane.vue')
     }
   ]
 })

@@ -13,24 +13,20 @@
       </div>
       <div class="game-info">
         <div class="info-item">
-          <h3>得分</h3>
-          <div class="score">{{ score }}</div>
+          <div class="info-line">得分: <span class="score">{{ score }}</span></div>
         </div>
         <div class="info-item">
-          <h3>等级</h3>
-          <div class="level">{{ level }}</div>
+          <div class="info-line">等级: <span class="level">{{ level }}</span></div>
         </div>
         <div class="info-item">
-          <h3>行数</h3>
-          <div class="lines">{{ linesCleared }}</div>
+          <div class="info-line">行数: <span class="lines">{{ linesCleared }}</span></div>
         </div>
         <div class="info-item">
-          <h3>下一个</h3>
+          <div class="info-line">下一个</div>
           <canvas ref="nextCanvas" width="80" height="80"></canvas>
         </div>
         <div class="info-item">
-          <h3>最高分</h3>
-          <div class="high-score">{{ highScore }}</div>
+          <div class="info-line">最高分: <span class="high-score">{{ highScore }}</span></div>
         </div>
       </div>
     </div>
@@ -137,39 +133,69 @@ export default {
         // I形
         {
           shape: [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
-          color: '#888888'
+          color: '#e0f7fa'
         },
         // J形
         {
           shape: [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
-          color: '#666666'
+          color: '#e8f5e8'
         },
         // L形
         {
           shape: [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
-          color: '#999999'
+          color: '#fff8e1'
         },
         // O形
         {
           shape: [[1, 1], [1, 1]],
-          color: '#777777'
+          color: '#e0f7fa'
         },
         // S形
         {
           shape: [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
-          color: '#555555'
+          color: '#e8f5e8'
         },
         // T形
         {
           shape: [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
-          color: '#aaaaaa'
+          color: '#fff8e1'
         },
         // Z形
         {
           shape: [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
-          color: '#444444'
+          color: '#e0f7fa'
         }
       ];
+    },
+    
+    // 生成时间格式的存档名称
+    generateSaveName() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      return `${year}_${month}_${day}-${hours}_${minutes}_${seconds}`;
+    },
+    
+    // 自动存档
+    autoSave() {
+      const saveData = {
+        board: JSON.parse(JSON.stringify(this.board)),
+        currentPiece: this.currentPiece,
+        nextPiece: this.nextPiece,
+        score: this.score,
+        level: this.level,
+        linesCleared: this.linesCleared,
+        dropInterval: this.dropInterval,
+        lastDropTime: Date.now()
+      };
+      
+      const saveName = this.generateSaveName();
+      localStorage.setItem(`tetris_save_${saveName}`, JSON.stringify(saveData));
+      console.log(`游戏已自动存档: ${saveName}`);
     },
     
     // 随机生成方块
@@ -289,6 +315,7 @@ export default {
       
       this.clearLines();
       this.spawnPiece();
+      this.autoSave();
     },
     
     // 清除行
@@ -335,6 +362,7 @@ export default {
       this.isPlaying = false;
       this.isGameOver = true;
       this.stopGameLoop();
+      this.autoSave();
     },
     
     // 开始游戏
@@ -355,6 +383,7 @@ export default {
         this.gameLoop();
       } else {
         this.stopGameLoop();
+        this.autoSave();
       }
     },
     
@@ -460,7 +489,7 @@ export default {
     
     // 渲染下一个方块
     renderNextPiece() {
-      const ctx = this.nextCanvas;
+      const ctx = this.nextCtx;
       if (!ctx || !this.nextPiece) return;
       
       // 清空画布
@@ -616,23 +645,24 @@ canvas {
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.info-item h3 {
-  font-size: 12px;
-  margin: 0 0 3px 0;
-  color: #666666;
+.info-line {
+  font-size: 14px;
   font-weight: bold;
+  color: #333333;
+  text-align: center;
 }
 
-.score, .level, .lines, .high-score {
-  font-size: 16px;
+.info-line span {
+  font-size: 14px;
   font-weight: bold;
   color: #333333;
 }
 
 #nextCanvas {
-  margin: 0 auto;
+  margin: 5px auto 0;
   background-color: #ffffff;
   border: 1px solid #dddddd;
+  display: block;
 }
 
 .game-footer {

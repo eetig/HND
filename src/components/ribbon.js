@@ -931,132 +931,186 @@ function getNowTimeString() {
 // 确保函数在全局作用域中可用
 window.getNowTimeString = getNowTimeString;
 
-// 任务窗格配置信息
-const taskPaneConfigs = [
-    {
-        id: "material_query_taskpane_id",
-        key: "btnMaterialQuery",
-        url: "index.html#/materialquery",
-        name: "物料查询"
-    },
-    {
-        id: "scientific_calculator_taskpane_id",
-        key: "btnScientificCalculator",
-        url: "index.html#/calculator",
-        name: "科学计算器"
-    },
-    {
-        id: "currency_converter_taskpane_id",
-        key: "btnCurrencyConverter",
-        url: "index.html#/currency",
-        name: "汇率换算"
-    },
-    {
-        id: "tank_volume_taskpane_id",
-        key: "btnTankVolume",
-        url: "index.html#/tank-volume",
-        name: "液位体积计算"
-    },
-    {
-        id: "qrcode_taskpane_id",
-        key: "btnQRCode",
-        url: "index.html#/qrcode",
-        name: "二维码"
-    },
-    {
-        id: "moyu_taskpane_id",
-        key: "btnMoyu",
-        url: "index.html#/moyu",
-        name: "数独"
-    },
-    {
-        id: "tetris_taskpane_id",
-        key: "btnTetris",
-        url: "index.html#/tetris",
-        name: "俄罗斯方块"
-    }
-];
+// 任务窗格配置信息 - 分为两组
+const taskPaneGroups = {
+    right: [
+        {
+            id: "fill_image_taskpane_id",
+            key: "btnFillImage",
+            url: "index.html#/fill-image",
+            name: "填入图片"
+        },
+        {
+            id: "add_comment_taskpane_id",
+            key: "btnAddComment",
+            url: "index.html#/add-comment",
+            name: "添加批注"
+        },
+        {
+            id: "material_query_taskpane_id",
+            key: "btnMaterialQuery",
+            url: "index.html#/materialquery",
+            name: "物料查询"
+        },
+        {
+            id: "dynamic_time_taskpane_id",
+            key: "btnDynamicTime",
+            url: "index.html#/dynamic-time",
+            name: "动态时间"
+        },
+        {
+            id: "scientific_calculator_taskpane_id",
+            key: "btnScientificCalculator",
+            url: "index.html#/calculator",
+            name: "科学计算器"
+        },
+        {
+            id: "currency_converter_taskpane_id",
+            key: "btnCurrencyConverter",
+            url: "index.html#/currency",
+            name: "汇率换算"
+        },
+        {
+            id: "tank_volume_taskpane_id",
+            key: "btnTankVolume",
+            url: "index.html#/tank-volume",
+            name: "液位体积计算"
+        },
+        {
+            id: "qrcode_taskpane_id",
+            key: "btnQRCode",
+            url: "index.html#/qrcode",
+            name: "二维码"
+        }
+    ],
+    left: [
+        {
+            id: "tetris_taskpane_id",
+            key: "btnTetris",
+            url: "index.html#/tetris",
+            name: "俄罗斯方块"
+        },
+        {
+            id: "moyu_taskpane_id",
+            key: "btnMoyu",
+            url: "index.html#/moyu",
+            name: "数独"
+        }
+    ]
+};
 
 // 统一管理任务窗格的函数
 function manageTaskPane(buttonKey) {
-    try {
-        if (!window.Application) {
-            throw new Error("无法访问WPS应用对象");
-        }
-        
-        console.log(`开始管理任务窗格: ${buttonKey}`);
-        
-        // 找到当前按钮对应的任务窗格配置
-        const currentConfig = taskPaneConfigs.find(config => config.key === buttonKey);
-        if (!currentConfig) {
-            console.error(`未找到任务窗格配置: ${buttonKey}`);
-            return;
-        }
-        
-        // 1. 检查其他窗格是否开启，如果开启，则关闭
-        console.log("关闭其他任务窗格");
-        for (const config of taskPaneConfigs) {
-            if (config.key === buttonKey) continue; // 跳过当前任务窗格
-            
-            const taskPaneId = window.Application.PluginStorage.getItem(config.id);
-            if (taskPaneId) {
-                try {
-                    const tskpane = window.Application.GetTaskPane(taskPaneId);
-                    if (tskpane && tskpane.Visible) {
-                        tskpane.Visible = false;
-                        console.log(`隐藏任务窗格: ${config.name}`);
-                    }
-                } catch (e) {
-                    console.log(`无法获取任务窗格: ${config.name}`);
-                }
-            }
-        }
-        
-        // 2. 检查当前窗格是否开启，如果开启，则关闭，如果未开启，则开启
-        console.log(`检查当前任务窗格状态: ${currentConfig.name}`);
-        const currentTaskPaneId = window.Application.PluginStorage.getItem(currentConfig.id);
-        let tskpane = null;
-        let isVisible = false;
-        
-        if (currentTaskPaneId) {
-            try {
-                tskpane = window.Application.GetTaskPane(currentTaskPaneId);
-                isVisible = tskpane && tskpane.Visible;
-                console.log(`当前任务窗格状态: ${isVisible ? "开启" : "关闭"}`);
-            } catch (e) {
-                console.log(`无法获取已存在的任务窗格: ${currentConfig.name}`);
-                tskpane = null;
-                isVisible = false;
-            }
-        }
-        
-        if (isVisible) {
-            // 当前窗格已开启，关闭它
-            tskpane.Visible = false;
-            console.log(`关闭任务窗格: ${currentConfig.name}`);
-        } else {
-            // 当前窗格未开启，开启它
-            if (tskpane) {
-                // 任务窗格存在但不可见，直接显示
-                tskpane.Visible = true;
-                console.log(`显示任务窗格: ${currentConfig.name}`);
-            } else {
-                // 任务窗格不存在，创建新的
-                let baseUrl = window.location.href;
-                let taskPaneUrl = baseUrl.replace(/index\.html.*$/, currentConfig.url);
-                tskpane = window.Application.CreateTaskPane(taskPaneUrl);
-                let id = tskpane.ID;
-                window.Application.PluginStorage.setItem(currentConfig.id, id);
-                tskpane.Visible = true;
-                console.log(`创建并显示任务窗格: ${currentConfig.name}, ID: ${id}`);
-            }
-        }
-        
-    } catch (error) {
-        console.error("管理任务窗格失败:", error);
-        console.error("错误堆栈:", error.stack);
-        alert(`管理任务窗格失败:\n详细错误: ${error.message}`);
+  try {
+    if (!window.Application) {
+      throw new Error("无法访问WPS应用对象");
     }
+    
+    console.log(`开始管理任务窗格: ${buttonKey}`);
+    
+    // 找到当前按钮对应的任务窗格配置和组
+    let currentConfig = null;
+    let currentGroup = null;
+    
+    // 查找当前按钮属于哪个组
+    for (const [groupName, groupConfigs] of Object.entries(taskPaneGroups)) {
+        const config = groupConfigs.find(c => c.key === buttonKey);
+        if (config) {
+            currentConfig = config;
+            currentGroup = groupName;
+            break;
+        }
+    }
+    
+    if (!currentConfig || !currentGroup) {
+      console.error(`未找到任务窗格配置: ${buttonKey}`);
+      return;
+    }
+    
+    // 获取当前组的所有配置
+    const groupConfigs = taskPaneGroups[currentGroup];
+    
+    // 1. 检查当前窗格是否开启，如果开启，则关闭
+    console.log(`检查当前任务窗格状态: ${currentConfig.name}`);
+    const currentTaskPaneId = window.Application.PluginStorage.getItem(currentConfig.id);
+    let tskpane = null;
+    let isVisible = false;
+    
+    if (currentTaskPaneId) {
+      try {
+        tskpane = window.Application.GetTaskPane(currentTaskPaneId);
+        isVisible = tskpane && tskpane.Visible;
+        console.log(`当前任务窗格状态: ${isVisible ? "开启" : "关闭"}`);
+      } catch (e) {
+        console.log(`无法获取已存在的任务窗格: ${currentConfig.name}`);
+        tskpane = null;
+        isVisible = false;
+      }
+    }
+    
+    if (isVisible) {
+      // 当前窗格已开启，关闭它
+      tskpane.Visible = false;
+      console.log(`关闭任务窗格: ${currentConfig.name}`);
+    } else {
+      // 2. 如果当前窗格未开启，则先关闭组内的其他任务窗格，再打开当前窗格
+      console.log(`关闭组内其他任务窗格`);
+      for (const config of groupConfigs) {
+        if (config.key === buttonKey) continue; // 跳过当前任务窗格
+        
+        const taskPaneId = window.Application.PluginStorage.getItem(config.id);
+        if (taskPaneId) {
+          try {
+            const groupTskpane = window.Application.GetTaskPane(taskPaneId);
+            if (groupTskpane && groupTskpane.Visible) {
+              groupTskpane.Visible = false;
+              console.log(`隐藏任务窗格: ${config.name}`);
+            }
+          } catch (e) {
+            console.log(`无法获取任务窗格: ${config.name}`);
+          }
+        }
+      }
+      
+      // 3. 打开当前任务窗格
+      console.log(`打开任务窗格: ${currentConfig.name}`);
+      if (tskpane) {
+        // 任务窗格存在但不可见，直接显示
+        tskpane.Visible = true;
+        // 根据组设置不同的停靠位置
+        if (window.Application.Enum) {
+          const dockPosition = currentGroup === 'left' ? 
+            window.Application.Enum.msoCTPDockPositionLeft : 
+            window.Application.Enum.msoCTPDockPositionRight;
+          tskpane.DockPosition = dockPosition;
+          console.log(`设置任务窗格${currentGroup === 'left' ? '左侧' : '右侧'}停靠: ${currentConfig.name}`);
+        }
+        console.log(`显示任务窗格: ${currentConfig.name}`);
+      } else {
+        // 任务窗格不存在，创建新的
+        let baseUrl = window.location.href;
+        let taskPaneUrl = baseUrl.replace(/index\.html.*$/, currentConfig.url);
+        tskpane = window.Application.CreateTaskPane(taskPaneUrl);
+        let id = tskpane.ID;
+        window.Application.PluginStorage.setItem(currentConfig.id, id);
+        // 根据组设置不同的停靠位置
+        if (window.Application.Enum) {
+          const dockPosition = currentGroup === 'left' ? 
+            window.Application.Enum.msoCTPDockPositionLeft : 
+            window.Application.Enum.msoCTPDockPositionRight;
+          tskpane.DockPosition = dockPosition;
+          console.log(`设置任务窗格${currentGroup === 'left' ? '左侧' : '右侧'}停靠: ${currentConfig.name}`);
+        }
+        tskpane.Visible = true;
+        console.log(`创建并显示任务窗格: ${currentConfig.name}, ID: ${id}`);
+      }
+    }
+    
+  } catch (error) {
+    console.error("管理任务窗格失败:", error);
+    console.error("错误堆栈:", error.stack);
+    alert(`管理任务窗格失败:\n详细错误: ${error.message}`);
+  }
 }
 
 //这些函数是给wps客户端调用的

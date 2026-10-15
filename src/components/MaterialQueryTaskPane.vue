@@ -11,7 +11,7 @@
           type="text" 
           class="input-field" 
           v-model="materialName" 
-          placeholder="请输入物料名称（支持模糊）" 
+          placeholder="请输入名称、编码或规格（支持模糊）" 
           @input="handleInput"
         />
       </div>
@@ -33,19 +33,31 @@
                       <th>序号</th>
                       <th>物料编码</th>
                       <th>物料名称</th>
+                      <th>规格型号</th>
+                      <th>单位</th>
+                      <th>物料组</th>
+                      <th>来源分类</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(item, index) in materialData" :key="item.code" class="result-row">
+                    <tr v-for="(item, index) in materialData" :key="`${item.code}-${item.sourceSheet}-${item.sourceRow}-${index}`" class="result-row">
                       <td>{{ index + 1 }}</td>
-                      <td>{{ item.code }}</td>
+                      <td v-html="highlightKeyword(item.code)"></td>
                       <td v-html="highlightKeyword(item.name)"></td>
+                      <td v-html="highlightKeyword(item.spec)"></td>
+                      <td>{{ item.unit }}</td>
+                      <td>{{ item.materialGroup }}</td>
+                      <td>{{ item.sourceSheet }}</td>
                     </tr>
                   </tbody>
                 </table>
         </div>
       </div>
       
+      <div v-else-if="isLoading" class="hint-message">
+        正在查询...
+      </div>
+
       <div v-else-if="queryError" class="error-message">
         {{ queryError }}
       </div>
@@ -64,7 +76,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, onBeforeUnmount } from 'vue'
 import materialQuery from './js/materialQuery.js'
 
 export default {
@@ -76,6 +88,7 @@ export default {
     const isLoading = ref(false)
     const hasSearched = ref(false)
     let debounceTimer = null
+    let latestRequestId = 0
 
     // 处理输入事件，添加防抖并自动查询
     const handleInput = () => {
@@ -87,10 +100,15 @@ export default {
     }
 
     const queryMaterial = async () => {
+      const keyword = materialName.value.trim()
+      const requestId = ++latestRequestId
+
       // 检查查询条件
-      if (!materialName.value) {
-        queryError.value = '请输入物料名称'
+      if (!keyword) {
+        queryError.value = ''
         materialData.value = []
+        hasSearched.value = false
+        isLoading.value = false
         return
       }
 
@@ -105,8 +123,10 @@ export default {
         
         // 调用物料查询函数
         const result = await materialQuery.queryMaterial({
-          name: materialName.value
+          name: keyword
         })
+
+        if (requestId !== latestRequestId) return
         
         if (result && result.length > 0) {
           materialData.value = result
@@ -126,10 +146,10 @@ export default {
 
     // 高亮显示匹配的关键词
     const highlightKeyword = (text) => {
-      if (!materialName.value) return text
+      if (!text) return ''
       
       const keyword = materialName.value.toLowerCase().trim()
-      if (!keyword) return text
+      if (!keyword) return escapeHtml(text)
       
       // 1. 将关键词分解为不同单元：连续数字、连续字母、单个汉字
       const keywordUnits = []
@@ -179,18 +199,31 @@ export default {
       }
       
       // 2. 创建正则表达式，匹配所有单元，不区分大小写
-      let result = text
-      keywordUnits.forEach(unit => {
-        if (unit.value) {
-          const regex = new RegExp(unit.value, 'gi')
-          result = result.replace(regex, match => 
-            `<span class="highlight">${match}</span>`
-          )
-        }
-      })
-      
-      return result
+      const pattern = keywordUnits
+        .filter(unit => unit.value)
+        .map(unit => escapeRegExp(unit.value))
+        .join('|')
+
+      if (!pattern) return escapeHtml(text)
+
+      return escapeHtml(text).replace(new RegExp(pattern, 'gi'), match =>
+        `<span class="highlight">${match}</span>`
+      )
     }
+
+    const escapeHtml = (text) => String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
+    const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+    onBeforeUnmount(() => {
+      clearTimeout(debounceTimer)
+      latestRequestId += 1
+    })
 
     return {
       materialName,

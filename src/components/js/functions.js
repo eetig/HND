@@ -30,6 +30,19 @@ for (const item of dataList) {
     dataIndex[item.a][item.b] = item.c;
 }
 
+function toFiniteNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+}
+
+function ellipsoidCapVolume(fullVolume, height, semiAxis) {
+    const ratio = Math.max(0, Math.min(1, height / semiAxis));
+    return fullVolume * (3 * ratio * ratio - 2 * ratio * ratio * ratio);
+}
+
+function formatNumber(value) {
+    return Number.isInteger(value) ? String(value) : value.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+}
 
 
 
@@ -40,6 +53,13 @@ for (const item of dataList) {
  * @customfunction
  */
 function V171(h,f) {
+    h = toFiniteNumber(h);
+    f = toFiniteNumber(f);
+
+    if (h === null || f === null || h < 0 || (f !== 0 && f !== 1)) {
+        return "参数错误：高度必须为非负数字，封头参数只能为0或1";
+    }
+
     if (f==0) {
         return h*0.00314*1000
     }else if (f==1) {
@@ -61,14 +81,13 @@ function V171(h,f) {
  * @returns {number} - 液体体积
  */
 function tank_HS(r, l, h_i, h) {
-    // 确保所有参数都是数字
-    r = Number(r);
-    l = Number(l);
-    h_i = Number(h_i);
-    h = Number(h);
+    r = toFiniteNumber(r);
+    l = toFiniteNumber(l);
+    h_i = toFiniteNumber(h_i);
+    h = toFiniteNumber(h);
     
     // 检查参数有效性
-    if (r <= 0 || l <= 0 || h_i <= 0 || h < 0) {
+    if (r === null || l === null || h_i === null || h === null || r <= 0 || l <= 0 || h_i <= 0 || h < 0) {
         return "参数错误：所有参数必须大于0，液位高度不能为负";
     }
     
@@ -77,7 +96,7 @@ function tank_HS(r, l, h_i, h) {
     
     // 检查液位高度是否超过总高度
     if (h > D) {
-        return "参数错误：液位高度不能超过储罐直径";
+        return `参数错误：液位高度不能超过储罐直径，最大液位高度为 ${formatNumber(D)}（与半径、长度参数单位一致）`;
     }
     
     // 根据用户提供的公式计算液体体积
@@ -109,14 +128,13 @@ function tank_HS(r, l, h_i, h) {
  * @returns {number} - 液体体积
  */
 function tank_VS(r, l, h_i, h) {
-    // 确保所有参数都是数字
-    r = Number(r);
-    l = Number(l);
-    h_i = Number(h_i);
-    h = Number(h);
+    r = toFiniteNumber(r);
+    l = toFiniteNumber(l);
+    h_i = toFiniteNumber(h_i);
+    h = toFiniteNumber(h);
     
     // 检查参数有效性
-    if (r <= 0 || l <= 0 || h_i <= 0 || h < 0) {
+    if (r === null || l === null || h_i === null || h === null || r <= 0 || l <= 0 || h_i <= 0 || h < 0) {
         return "参数错误：所有参数必须大于0，液位高度不能为负";
     }
     
@@ -125,7 +143,7 @@ function tank_VS(r, l, h_i, h) {
     
     // 检查液位高度是否超过总高度
     if (h > total_height) {
-        return "参数错误：液位高度不能超过储罐总高度";
+        return `参数错误：液位高度不能超过储罐总高度，最大液位高度为 ${formatNumber(total_height)}（与半径、长度参数单位一致）`;
     }
     
     let volume = 0;
@@ -135,11 +153,7 @@ function tank_VS(r, l, h_i, h) {
     const V_ellipse_full = (2/3) * Math.PI * Math.pow(r, 2) * h_i;
     
     if (h <= h_i) {
-        // 1. 仅底部椭圆封头内有液体
-        // 使用用户提供的无直边非标椭圆封头体积公式的液位比例计算
-        // 假设液位高度h与封头高度h_i的比例为k，则体积V = (2/3)πr²h_i * (h/h_i)^2
-        const k = h / h_i;
-        volume = V_ellipse_full * Math.pow(k, 2);
+        volume = ellipsoidCapVolume(V_ellipse_full, h, h_i);
     } else if (h <= h_i + l) {
         // 2. 底部椭圆封头满，圆筒部分有液体
         // 椭圆封头满体积：V_ellipse_full = (2/3)πr²h_i
@@ -148,14 +162,10 @@ function tank_VS(r, l, h_i, h) {
         volume = V_ellipse_full + V_cylinder;
     } else {
         // 3. 底部椭圆封头和圆筒都满，顶部椭圆封头内有液体
-        // 两个椭圆封头满体积：V_ellipse_full_total = 2 * (2/3)πr²h_i
-        const V_ellipse_full_total = 2 * V_ellipse_full;
         // 圆筒满体积：V_cylinder_full = πr²l
         const V_cylinder_full = Math.PI * Math.pow(r, 2) * l;
-        // 顶部椭圆封头内的液体体积：V_top_ellipse = (2/3)πr²h_i * (h_top/h_i)^2
         const h_top = (2*h_i + l-h); // 顶部椭圆封头内的气体高度
-        const k_top = h_top / h_i;
-        const V_top_ellipse = V_ellipse_full * Math.pow(k_top, 2);
+        const V_top_ellipse = ellipsoidCapVolume(V_ellipse_full, h_top, h_i);
         volume = 2*V_ellipse_full + V_cylinder_full - V_top_ellipse;
     }
     
@@ -170,7 +180,9 @@ function tank_VS(r, l, h_i, h) {
  * @returns {string} - 匹配的编码
  */
 function wlbm(a, b) {
-    return dataIndex[a]?.[b] ?? "";
+    const materialName = String(a ?? "").trim();
+    const specification = String(b ?? "").trim();
+    return dataIndex[materialName]?.[specification] ?? "";
 }
 
 
@@ -180,7 +192,18 @@ function wlbm(a, b) {
  * @param {string} h - 三氯氢硅液位（单位mm）
  */
 function V_SiHCl3(h) {
-    return tank_HS(1.4, 5.58, 0.7, h/1000);
+    const level = toFiniteNumber(h);
+    const maxLevel = 2800;
+
+    if (level === null || level < 0) {
+        return "参数错误：液位必须是非负数字，单位为毫米";
+    }
+
+    if (level > maxLevel) {
+        return `参数错误：液位高度不能超过储罐直径，最大液位高度为 ${maxLevel} 毫米`;
+    }
+
+    return tank_HS(1.4, 5.58, 0.7, level / 1000);
 }
 
 
@@ -195,7 +218,18 @@ function V_SiHCl3_314(h) {
     const r = 1.4;
     const l = 5.58;
     const h_i = 0.7;
-    h = Number(h);
+    const level = toFiniteNumber(h);
+    const maxLevel = 2800;
+
+    if (level === null || level < 0) {
+        return "参数错误：液位必须是非负数字，单位为毫米";
+    }
+
+    if (level > maxLevel) {
+        return `参数错误：液位高度不能超过储罐直径，最大液位高度为 ${maxLevel} 毫米`;
+    }
+
+    h = level / 1000;
     
     // 检查参数有效性
     if (r <= 0 || l <= 0 || h_i <= 0 || h < 0) {
@@ -207,22 +241,24 @@ function V_SiHCl3_314(h) {
     
     // 检查液位高度是否超过总高度
     if (h > D) {
-        return "参数错误：液位高度不能超过储罐直径";
+        return `参数错误：液位高度不能超过储罐直径，最大液位高度为 ${formatNumber(maxLevel)} 毫米`;
     }
     
-    // 根据用户提供的公式计算液体体积
-    // 公式：V_h = L [ (πr²/2 - (r-h)√(2rh - h²) - r²arcsin((r-h)/r) ] + (πh_i)/(3r) [3r²h - r³ + (r-h)³]
+    // 使用公司约定的 π=3.14。圆弧部分改用圆弧段公式，避免低液位时相近数相减产生负数。
+    const pi = 3.14;
+    const normalizedHeight = (r - h) / r;
+    const angle = Math.acos(normalizedHeight) * pi / Math.acos(-1);
     
     // 1. 计算圆柱部分的液体体积
-    const part1 = l * ( (3.14 * Math.pow(r, 2)) / 2 - (r - h) * Math.sqrt(2 * r * h - Math.pow(h, 2)) - Math.pow(r, 2) * Math.asin( (r - h) / r ) );
+    const part1 = l * (Math.pow(r, 2) * angle - (r - h) * Math.sqrt(2 * r * h - Math.pow(h, 2)));
     
     // 2. 计算两个椭圆封头的液体体积总和
-    const part2 = (3.14 * h_i) / (3 * r) * ( 3 * Math.pow(r, 2) * h - Math.pow(r, 3) + Math.pow(r - h, 3) );
+    const part2 = (pi * h_i) / (3 * r) * ( 3 * Math.pow(r, 2) * h - Math.pow(r, 3) + Math.pow(r - h, 3) );
     
     // 3. 总体积
     const volume = part1 + part2;
     
-    return volume;
+    return Math.max(0, volume);
 }
 
 // 表格数据（移到函数外部，避免每次调用都重新创建）
@@ -277,9 +313,9 @@ const tableData = [
 function gdwl(a, b, c) {
     try {
         // 处理参数类型，确保都是字符串
-        a = String(a || "");
-        b = String(b || "");
-        c = String(c || "");
+        a = String(a ?? "").trim();
+        b = String(b ?? "").trim();
+        c = String(c ?? "").trim();
         
         // 表格数据已移到函数外部
 
@@ -309,7 +345,9 @@ function gdwl(a, b, c) {
             window.gdwlMap = new Map();
             tableData.forEach(item => {
                 const key = `${item.orderNo.substring(0, 3)}_${item.materialCode}`;
-                window.gdwlMap.set(key, item);
+                if (!window.gdwlMap.has(key)) {
+                    window.gdwlMap.set(key, item);
+                }
             });
         }
 
@@ -348,13 +386,15 @@ if (typeof window !== 'undefined') {
 function wlmc(a) {
     try {
         // 处理参数类型，确保是字符串
-        a = String(a || "");
+        a = String(a ?? "").trim();
         
         // 使用Map构建高效的hash索引（性能优化）
         if (!window.wlmcMap) {
             window.wlmcMap = new Map();
             tableData.forEach(item => {
-                window.wlmcMap.set(item.materialCode, item.materialName);
+                if (!window.wlmcMap.has(item.materialCode)) {
+                    window.wlmcMap.set(item.materialCode, item.materialName);
+                }
             });
         }
         
